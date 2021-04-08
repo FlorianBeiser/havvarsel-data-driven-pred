@@ -63,10 +63,14 @@ class FrostImporter:
         df.columns = ['time', station_id]
         df.set_index('time')
 
+        # save data frame
+        df.to_csv(r'timeseries_badevann.csv', index=False)
+
         # print and plot
         print(df)      
         df[station_id].plot(title='Temperature (deg C)') # need some tweaking to use time-column as x-axis values
         plt.show()
+        plt.savefig('timeseries_badevann.png')
 
         return
 
