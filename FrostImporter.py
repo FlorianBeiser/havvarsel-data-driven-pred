@@ -9,7 +9,7 @@ Test havvarsel-frost.met.no (badevann):
 
 Test frost.met.no (observations) - THIS TAKES A COUPLE OF MINUTES TO RUN: 
 'python3 frost-plots.py --fab https://frost.met.no -id SN18700 -param air_temperature -S 2019-01-01T00:00 -E 2019-12-31T23:59'
-(other available params we have discussed to include: wind_speed and relative_humidity)
+(other available params we have discussed to include: wind_speed and relative_humidity and cloud_area_fraction and sum(duration_of_sunshinePT1H) or mean(surface_downwelling_shortwave_flux_in_air PT1H) )
 
 Install requirements with 'pip3 install -r requirements.txt'
 
@@ -27,29 +27,45 @@ import datetime
 import requests
 from traceback import format_exc
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
 
 class FrostImporter:
-    def __init__(self):
+    def __init__(self, frost_api_base=None, station_id=None, start_time=None, end_time=None):
+        """ Initialisation of FrostImporter Class
+        If nothing is specified as argument, command line arguments are expected.
+        Otherwise an empty instance of the class is created
+        """
 
-        frost_api_base, station_id, param, start_time, end_time = self.__parse_args()
+        if start_time is None:
+            frost_api_base, station_id, param, start_time, end_time = self.__parse_args()
 
-        start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
-        end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+            self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+            self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
 
-        # switch between Frost instances/servers
-        if "havvarsel" in frost_api_base:
-            self.__havvarsel_frost(frost_api_base, station_id, param, start_time, end_time)
+            # switch between Frost instances/servers
+            if "havvarsel" in frost_api_base:
+                self.havvarsel_frost(station_id, param, frost_api_base, self.start_time, self.end_time)
+            else:
+                self.frost(station_id, param, frost_api_base, self.start_time, self.end_time)
+
         else:
-            self.__frost(frost_api_base, station_id, param, start_time, end_time)
+            self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+            self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
 
-    def __havvarsel_frost(self, frost_api_base, station_id, param, start_time, end_time):
+
+    def havvarsel_frost(self, station_id, param="temperature", frost_api_base="http://havvarsel-frost.met.no", \
+        start_time=None, end_time=None):
         """Fetch data from Havvarsel Frost server.
         
         References:
         API documentation for obs/badevann http://havvarsel-frost.met.no/docs/apiref#/obs%2Fbadevann/obsBadevannGet 
         Datastructure described on http://havvarsel-frost.met.no/docs/dataset_badevann
         """
+
+        if start_time is None:
+            start_time = self.start_time
+        if end_time is None:
+            end_time = self.end_time
 
         endpoint = frost_api_base + "/api/v1/obs/badevann/get"
 
@@ -63,10 +79,16 @@ class FrostImporter:
         except requests.exceptions.HTTPError as err:
             raise Exception(err)
 
+        # extract meta information from the Frost response
+        # NOTE: Assumes that the response contains only one timeseries
+        header = r.json()["data"]["tseries"][0]["header"]
+        print(header)
+        df_header = pd.Series(header["extra"]["pos"])
+
         # extract the actual observations from the Frost response
         # NOTE: Assumes that the response contains only one timeseries
         observations = r.json()["data"]["tseries"][0]["observations"]
-
+        
         # massage data for pandas
         rows = []
         for data in observations:
@@ -81,17 +103,61 @@ class FrostImporter:
         df[param] = pd.to_numeric(df[param])
         df.columns = ['time', station_id]
         df.set_index('time')
+        df.rename(columns={station_id:"water_temp"}, inplace=True)
 
-        # save data frame
-        df.to_csv('timeseries_badevann_' + param + '.csv', index=False)
+        # save time data frame
+        df["time"] = df["time"].dt.floor('H')
 
-        # print and plot
-        print(df)      
-        df[station_id].plot(title='Temperature (deg C)') # need some tweaking to use time-column as x-axis values
-        plt.savefig('timeseries_badevann_' + param + '.png')
-        plt.show()
+        return(df_header, df)
 
-    def __frost(self, frost_api_base, station_id, param, start_time, end_time):
+
+    def frost_location_ids(self, havvarsel_location, n, client_id='d9b49879-6a30-46bb-8030-de9f74aef5b1'):
+        """Identifying the n closest station_ids in the Frost database around havvarsel_locations"""
+
+        # Fetching location data from frost
+        url = "https://frost.met.no/sources/v0.jsonld"
+        payload = {}
+
+        try:
+            r = requests.get(url, params=payload, auth=(client_id,''))
+            print("Trying " + r.url)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise Exception(err)
+
+        data = r.json()['data']
+
+        # full table
+        df = pd.DataFrame()
+        for element in data:
+            if "geometry" in element:
+                row = pd.DataFrame(element["geometry"])
+                row["station_id"] = element["id"]
+                df = df.append(row)
+
+        df = df.reset_index()
+
+        # Build data frame with coordinates and distances with respect to havvarsel_location
+        lon_ref = float(havvarsel_location["lon"])
+        lat_ref = float(havvarsel_location["lat"])
+
+        df_dist = pd.DataFrame()
+        for i in range(int(len(df)/2)):
+            id  = df.iloc[2*i]["station_id"]
+            lon = df.iloc[2*i]["coordinates"]
+            lat = df.iloc[2*i+1]["coordinates"]
+            dist_5  = np.sqrt((lon-lon_ref)**2 + (lat-lat_ref)**2) # this is not a metric distance!
+            df_dist = df_dist.append({"station_id":id, "lon":lon, "lat":lat, "dist":dist_5}, ignore_index=True)
+
+        # Identify closest n stations 
+        df_ids = df_dist.nsmallest(n,"dist")["station_id"]
+        df_ids = df_ids.reset_index(drop=True)
+        
+        return(df_ids)
+
+
+    def frost(self, station_id, param, frost_api_base="https://frost.met.no", start_time=None, end_time=None,\
+        client_id='d9b49879-6a30-46bb-8030-de9f74aef5b1'):
         """Fetch data from standard Frost server.
 
         References:
@@ -104,7 +170,10 @@ class FrostImporter:
         Complete API reference at https://frost.met.no/api.html 
         """
 
-        client_id = 'd9b49879-6a30-46bb-8030-de9f74aef5b1' # for martinls @ met.no
+        if start_time is None:
+            start_time = self.start_time
+        if end_time is None:
+            end_time = self.end_time
 
         endpoint = frost_api_base + "/observations/v0.jsonld"
 
@@ -128,36 +197,36 @@ class FrostImporter:
             row['sourceId'] = element['sourceId']
             df = df.append(row)
 
+        df['referenceTime'] =  pd.to_datetime(df['referenceTime'])
+
         df = df.reset_index()
 
-        print(df.head())
+        return(df)
 
-        # short table
-        # These additional columns will be kept
-        columns = ['sourceId','referenceTime','elementId','value','unit','timeOffset']
-        df2 = df[columns].copy()
-        # Convert the time value to something Python understands
-        df2['referenceTime'] = pd.to_datetime(df2['referenceTime'])
-        print(df2.head())
 
-        # even shorter table
-        columns = ['referenceTime','value']
-        df3 = df2[columns].copy()
-        df3.columns = ['time', station_id]
+    def postprocess_frost(self, timeseries, param, data):
+        """Tweaking the frost output timeseries such that it matches the times in df"""
 
-        # save data frame
-        df3.to_csv('timeseries_observations_' + param + ".csv", index=False)
+        if "time" not in data.columns:
+            data = data.reset_index()
+        timeseries = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
+        timeseries = timeseries.set_index("referenceTime")
 
-        # NOTE: Need to do some filtering for air_temperature, as we currently get two values per time
-        # in two different levels (2 meter and 10 meter)
-        print(df['level'][0])
-        print(df['level'][1])
+        if "index" in timeseries.columns:
+            for i in range( timeseries["index"].max()+1 ):
+                print(i)
+                timeseriesIdx = timeseries.loc[timeseries["index"]==i][["value"]]
+                timeseriesIdx = timeseriesIdx.reset_index()
+                if "time" in data.columns:
+                    data = data.set_index("time")
+                data = data.reset_index()
+                data = data.join(timeseriesIdx["value"])
+                data = data.set_index("time")
+                data.rename(columns={'value':param+str(i)}, inplace=True)
 
-        # print and plot
-        print(df3)     
-        df3[station_id].plot(title='Temperature (deg C)') # need some tweaking to use time-column as x-axis values
-        plt.savefig('timeseries_observations_' + param + '.png')
-        plt.show()
+        return data
+
+
 
     @staticmethod
     def __parse_args():
