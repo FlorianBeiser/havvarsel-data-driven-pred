@@ -35,7 +35,7 @@ class FrostImporter:
         If nothing is specified as argument, command line arguments are expected.
         Otherwise an empty instance of the class is created
         """
-
+        # For command line calls the class reads the parameters from argsPars
         if start_time is None:
             frost_api_base, station_id, param, start_time, end_time = self.__parse_args()
 
@@ -47,7 +47,8 @@ class FrostImporter:
                 self.havvarsel_frost(station_id, param, frost_api_base, self.start_time, self.end_time)
             else:
                 self.frost(station_id, param, frost_api_base, self.start_time, self.end_time)
-
+        
+        # Non-command line calls expect start and end_time to initialise a valid instance
         else:
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
@@ -62,11 +63,13 @@ class FrostImporter:
         Datastructure described on http://havvarsel-frost.met.no/docs/dataset_badevann
         """
 
+        # using member variables if applicable
         if start_time is None:
             start_time = self.start_time
         if end_time is None:
             end_time = self.end_time
 
+        # Fetching the data from the server
         endpoint = frost_api_base + "/api/v1/obs/badevann/get"
 
         payload = {'time': start_time.isoformat() + "Z/" + end_time.isoformat() + "Z", 
@@ -83,6 +86,7 @@ class FrostImporter:
         # NOTE: Assumes that the response contains only one timeseries
         header = r.json()["data"]["tseries"][0]["header"]
         print(header)
+        # The dataframe to return only hold the lonlat information for the observation site
         df_header = pd.Series(header["extra"]["pos"])
 
         # extract the actual observations from the Frost response
@@ -105,7 +109,9 @@ class FrostImporter:
         df.set_index('time')
         df.rename(columns={station_id:"water_temp"}, inplace=True)
 
-        # save time data frame
+        # NOTE: some observations are 1min delayed. 
+        # To ensure agreement with hourly observations from Frost
+        # We floor the times to hours
         df["time"] = df["time"].dt.floor('H')
 
         return(df_header, df)
@@ -127,7 +133,7 @@ class FrostImporter:
 
         data = r.json()['data']
 
-        # full table
+        # storing location information data frame
         df = pd.DataFrame()
         for element in data:
             if "geometry" in element:
@@ -137,7 +143,7 @@ class FrostImporter:
 
         df = df.reset_index()
 
-        # Build data frame with coordinates and distances with respect to havvarsel_location
+        # Building data frame with coordinates and distances with respect to havvarsel_location
         lon_ref = float(havvarsel_location["lon"])
         lat_ref = float(havvarsel_location["lat"])
 
@@ -170,11 +176,13 @@ class FrostImporter:
         Complete API reference at https://frost.met.no/api.html 
         """
 
+        # using member variables if applicable
         if start_time is None:
             start_time = self.start_time
         if end_time is None:
             end_time = self.end_time
 
+        # Fetching data from server
         endpoint = frost_api_base + "/observations/v0.jsonld"
 
         payload = {'referencetime': start_time.isoformat() + "Z/" + end_time.isoformat() + "Z", 
@@ -207,14 +215,18 @@ class FrostImporter:
     def postprocess_frost(self, timeseries, param, data):
         """Tweaking the frost output timeseries such that it matches the times in df"""
 
+        # NOTE: The Frost data commonly holds observations for more times 
+        # than the referenced Havvarsel Frost timeseries.
+        # Extracting observations only for relevant times 
         if "time" not in data.columns:
             data = data.reset_index()
         timeseries = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
         timeseries = timeseries.set_index("referenceTime")
 
+        # NOTE: The Frost data can contain data for different "levels" for a parameter.
+        # Extracting the different levels and adding them as new column to data
         if "index" in timeseries.columns:
             for i in range( timeseries["index"].max()+1 ):
-                print(i)
                 timeseriesIdx = timeseries.loc[timeseries["index"]==i][["value"]]
                 timeseriesIdx = timeseriesIdx.reset_index()
                 if "time" in data.columns:
