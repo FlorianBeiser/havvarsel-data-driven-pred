@@ -53,17 +53,14 @@ class FrostImporter:
                 location, data = self.havvarsel_frost(station_id)
                 # identifying closest station_id's on frost
                 print("The closest Frost stations:")
-                frost_station_ids = self.frost_location_ids(location, param, 10)
-                # Fetching data for those ids if available and add them to data
+                frost_station_ids = self.frost_location_ids(location, 10, param)
+                # Fetching data for those ids and add them to data
                 for i in range(len(frost_station_ids)):
-                    if(self.frost_availability(frost_station_ids[i], param)):
-                        print("Fetching data for ", frost_station_ids[i])
-                        timeseries = self.frost(frost_station_ids[i],param)
-                        print("Postprocessing the fetched data...")
-                        data = self.postprocess_frost(timeseries,frost_station_ids[i]+param,data)
-                        print("Done. (Data is added to the data set)")
-                    else:
-                        print("No data for ", frost_station_ids[i], " available")
+                    print("Fetching data for ", frost_station_ids[i])
+                    timeseries = self.frost(frost_station_ids[i],param)
+                    print("Postprocessing the fetched data...")
+                    data = self.postprocess_frost(timeseries,frost_station_ids[i]+param,data)
+                    print("Done. (Data is added to the data set)")
                 # save dataset
                 print("Dataset is constructed and will be saved now...")
                 data.to_csv("dataset_"+param+".csv")
@@ -145,12 +142,16 @@ class FrostImporter:
         return(df_header, df)
 
 
-    def frost_location_ids(self, havvarsel_location, param, n, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
+    def frost_location_ids(self, havvarsel_location, n, param=None, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
         """Identifying the n closest station_ids in the Frost database around havvarsel_locations"""
 
         # Fetching location data from frost
         url = "https://frost.met.no/sources/v0.jsonld"
-        payload = {"elements":param}
+        if param is not None:
+            payload = {"validtime":str(self.start_time.date())+"/"+str(self.end_time.date()),
+                        "elements":param}
+        else: 
+            payload = {"validtime":self.start_time.date()+"/"+self.end_time.date()}
 
         try:
             r = requests.get(url, params=payload, auth=(client_id,''))
@@ -240,47 +241,6 @@ class FrostImporter:
         df = df.reset_index()
 
         return(df)
-
-
-    def frost_availability(self, station_id, param, start_time=None, end_time=None,\
-        client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
-        """Checking availability of time series for param at station with station_id
-        in the time period from start_time til end_time. 
-
-        Information is fetched from https://frost.met.no 
-        (More references see self.frost(..) documentation)"""
-
-        # using member variables if applicable
-        if start_time is None:
-            start_time = self.start_time
-        if end_time is None:
-            end_time = self.end_time
-
-        # Fetching data from server
-        endpoint = "https://frost.met.no/observations/availableTimeSeries/v0.jsonld"
-
-        # NOTE: if we would fetch for the element=param directly
-        # the try fails and an exception is thrown
-        payload = {'sources': station_id,
-                    'referencetime': start_time.isoformat() + "/" + end_time.isoformat() + ""}
-
-        try:
-            r = requests.get(endpoint, params=payload, auth=(client_id,''))
-            print("Trying " + r.url)
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            raise Exception(err)
-        
-        data = r.json()['data']
-
-        available = False
-        for element in data:
-            if element['elementId']==param:
-                available = True
-
-        return(available)
-
-        
 
 
     def postprocess_frost(self, timeseries, param, data):
