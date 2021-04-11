@@ -53,7 +53,7 @@ class FrostImporter:
                 location, data = self.havvarsel_frost(station_id)
                 # identifying closest station_id's on frost
                 print("The closest Frost stations:")
-                frost_station_ids = self.frost_location_ids(location, 10)
+                frost_station_ids = self.frost_location_ids(location, param, 10)
                 # Fetching data for those ids if available and add them to data
                 for i in range(len(frost_station_ids)):
                     if(self.frost_availability(frost_station_ids[i], param)):
@@ -145,12 +145,12 @@ class FrostImporter:
         return(df_header, df)
 
 
-    def frost_location_ids(self, havvarsel_location, n, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
+    def frost_location_ids(self, havvarsel_location, param, n, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
         """Identifying the n closest station_ids in the Frost database around havvarsel_locations"""
 
         # Fetching location data from frost
         url = "https://frost.met.no/sources/v0.jsonld"
-        payload = {}
+        payload = {"elements":param}
 
         try:
             r = requests.get(url, params=payload, auth=(client_id,''))
