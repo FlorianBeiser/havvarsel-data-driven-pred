@@ -11,7 +11,8 @@ Test frost.met.no (observations) - THIS TAKES A COUPLE OF MINUTES TO RUN:
 'python3 frost-plots.py --fab https://frost.met.no -id SN18700 -param air_temperature -S 2019-01-01T00:00 -E 2019-12-31T23:59'
 (other available params we have discussed to include: wind_speed and relative_humidity and cloud_area_fraction and sum(duration_of_sunshinePT1H) or mean(surface_downwelling_shortwave_flux_in_air PT1H) )
 
-Install requirements with 'pip3 install -r requirements.txt'
+Test for the construction of a data set:
+'python FrostImporter.py --fab all -id 1 -param air_temperature -S 2019-01-01T00:00 -E 2019-12-31T23:59'
 
 TODO:
  - Tune processing and storing of observational data sets (to suite whatever code that will use the data sets)
@@ -42,11 +43,38 @@ class FrostImporter:
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
 
-            # switch between Frost instances/servers
-            if "havvarsel" in frost_api_base:
-                self.havvarsel_frost(station_id, param, frost_api_base, self.start_time, self.end_time)
+            # keyword "all" triggers workflow to construct a csv file
+            # containing the water_temperature series of selected station of havvarsel frost
+            # and adds params time series from the 5 closest frost stations
+            if frost_api_base == "all":
+                print("Starting the construction of an data set...")
+                # meta data and time series from havvarsel frost
+                print("The Havvarsel Frost observation site:")
+                location, data = self.havvarsel_frost(station_id)
+                # identifying closest station_id's on frost
+                print("The closest Frost stations:")
+                frost_station_ids = self.frost_location_ids(location, 10)
+                # Fetching data for those ids if available and add them to data
+                for i in range(len(frost_station_ids)):
+                    if(self.frost_availability(frost_station_ids[i], param)):
+                        print("Fetching data for ", frost_station_ids[i])
+                        timeseries = self.frost(frost_station_ids[i],param)
+                        print("Postprocessing the fetched data...")
+                        data = self.postprocess_frost(timeseries,frost_station_ids[i]+param,data)
+                        print("Done. (Data is added to the data set)")
+                    else:
+                        print("No data for ", frost_station_ids[i], " available")
+                # save dataset
+                print("Dataset is constructed and will be saved now...")
+                data.to_csv("dataset_"+param+".csv")
+                print("Ready!")
+
             else:
-                self.frost(station_id, param, frost_api_base, self.start_time, self.end_time)
+                # switch between Frost instances/servers
+                if "havvarsel" in frost_api_base:
+                    self.havvarsel_frost(station_id, param, frost_api_base, self.start_time, self.end_time)
+                else:
+                    self.frost(station_id, param, frost_api_base, self.start_time, self.end_time)
         
         # Non-command line calls expect start and end_time to initialise a valid instance
         else:
@@ -117,7 +145,7 @@ class FrostImporter:
         return(df_header, df)
 
 
-    def frost_location_ids(self, havvarsel_location, n, client_id='d9b49879-6a30-46bb-8030-de9f74aef5b1'):
+    def frost_location_ids(self, havvarsel_location, n, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
         """Identifying the n closest station_ids in the Frost database around havvarsel_locations"""
 
         # Fetching location data from frost
@@ -158,12 +186,14 @@ class FrostImporter:
         # Identify closest n stations 
         df_ids = df_dist.nsmallest(n,"dist")["station_id"]
         df_ids = df_ids.reset_index(drop=True)
+
+        print(df_ids)
         
         return(df_ids)
 
 
     def frost(self, station_id, param, frost_api_base="https://frost.met.no", start_time=None, end_time=None,\
-        client_id='d9b49879-6a30-46bb-8030-de9f74aef5b1'):
+        client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
         """Fetch data from standard Frost server.
 
         References:
@@ -212,8 +242,50 @@ class FrostImporter:
         return(df)
 
 
+    def frost_availability(self, station_id, param, start_time=None, end_time=None,\
+        client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
+        """Checking availability of time series for param at station with station_id
+        in the time period from start_time til end_time. 
+
+        Information is fetched from https://frost.met.no 
+        (More references see self.frost(..) documentation)"""
+
+        # using member variables if applicable
+        if start_time is None:
+            start_time = self.start_time
+        if end_time is None:
+            end_time = self.end_time
+
+        # Fetching data from server
+        endpoint = "https://frost.met.no/observations/availableTimeSeries/v0.jsonld"
+
+        # NOTE: if we would fetch for the element=param directly
+        # the try fails and an exception is thrown
+        payload = {'sources': station_id,
+                    'referencetime': start_time.isoformat() + "/" + end_time.isoformat() + ""}
+
+        try:
+            r = requests.get(endpoint, params=payload, auth=(client_id,''))
+            print("Trying " + r.url)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise Exception(err)
+        
+        data = r.json()['data']
+
+        available = False
+        for element in data:
+            if element['elementId']==param:
+                available = True
+
+        return(available)
+
+        
+
+
     def postprocess_frost(self, timeseries, param, data):
-        """Tweaking the frost output timeseries such that it matches the times in df"""
+        """Tweaking the frost output timeseries such that it matches the times in df
+        and attaching it to data as new column"""
 
         # NOTE: The Frost data commonly holds observations for more times 
         # than the referenced Havvarsel Frost timeseries.
