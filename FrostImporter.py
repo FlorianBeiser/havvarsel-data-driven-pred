@@ -26,9 +26,11 @@ import sys
 import json
 import datetime
 import requests
+import io
 from traceback import format_exc
 import pandas as pd
 import numpy as np
+from haversine import haversine 
 
 class FrostImporter:
     def __init__(self, frost_api_base=None, station_id=None, start_time=None, end_time=None):
@@ -56,11 +58,19 @@ class FrostImporter:
                 frost_station_ids = self.frost_location_ids(location, 10, param)
                 # Fetching data for those ids and add them to data
                 for i in range(len(frost_station_ids)):
+                    # NOTE: Some sites have interrupted timeseries. By default only the latest part is fetched...
+                    # TODO: Fetch data also for concatinated timeseries 
+                    #---
+                    # NOTE: Per call a maximum of 100.000 observations can be fetched at once
+                    # Some time series exceed this limit.
+                    # TODO: Fetch data year by year to stay within the limit 
                     print("Fetching data for ", frost_station_ids[i])
                     timeseries = self.frost(frost_station_ids[i],param)
-                    print("Postprocessing the fetched data...")
-                    data = self.postprocess_frost(timeseries,frost_station_ids[i]+param,data)
-                    print("Done. (Data is added to the data set)")
+                    if timeseries is not None:
+                        print("Postprocessing the fetched data...")
+                        data = self.postprocess_frost(timeseries,frost_station_ids[i],param,data)
+                        print("Done. (Data is added to the data set)")
+                        data.to_csv("data_save_intermediate"+str(i)+".csv")
                 # save dataset
                 print("Dataset is constructed and will be saved now...")
                 data.to_csv("dataset_"+param+".csv")
@@ -110,9 +120,11 @@ class FrostImporter:
         # extract meta information from the Frost response
         # NOTE: Assumes that the response contains only one timeseries
         header = r.json()["data"]["tseries"][0]["header"]
-        print(header)
-        # The dataframe to return only hold the lonlat information for the observation site
-        df_header = pd.Series(header["extra"]["pos"])
+        # Cast to data frame
+        header_list = [header["id"]["buoyID"],header["id"]["parameter"]]
+        header_list.extend([header["extra"]["name"], header["extra"]["pos"]["lon"], header["extra"]["pos"]["lat"]])
+        df_location = pd.DataFrame([header_list], columns=["buoyID","parameter","name","lon","lat"])
+        print(df_location)
 
         # extract the actual observations from the Frost response
         # NOTE: Assumes that the response contains only one timeseries
@@ -139,7 +151,7 @@ class FrostImporter:
         # We floor the times to hours
         df["time"] = df["time"].dt.floor('H')
 
-        return(df_header, df)
+        return(df_location, df)
 
 
     def frost_location_ids(self, havvarsel_location, n, param=None, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
@@ -173,24 +185,22 @@ class FrostImporter:
         df = df.reset_index()
 
         # Building data frame with coordinates and distances with respect to havvarsel_location
-        lon_ref = float(havvarsel_location["lon"])
-        lat_ref = float(havvarsel_location["lat"])
+        latlon_ref = (float(havvarsel_location["lat"][0]),float(havvarsel_location["lon"][0]))
 
         df_dist = pd.DataFrame()
         for i in range(int(len(df)/2)):
             id  = df.iloc[2*i]["station_id"]
-            lon = df.iloc[2*i]["coordinates"]
-            lat = df.iloc[2*i+1]["coordinates"]
-            dist_5  = np.sqrt((lon-lon_ref)**2 + (lat-lat_ref)**2) # this is not a metric distance!
-            df_dist = df_dist.append({"station_id":id, "lon":lon, "lat":lat, "dist":dist_5}, ignore_index=True)
+            latlon = (df.iloc[2*i+1]["coordinates"],df.iloc[2*i]["coordinates"])
+            dist  = haversine(latlon_ref,latlon)
+            df_dist = df_dist.append({"station_id":id, "lon":latlon[0], "lat":latlon[1], "dist":dist}, ignore_index=True)
 
         # Identify closest n stations 
-        df_ids = df_dist.nsmallest(n,"dist")["station_id"]
+        df_ids = df_dist.nsmallest(n,"dist")#["station_id"]
         df_ids = df_ids.reset_index(drop=True)
 
         print(df_ids)
         
-        return(df_ids)
+        return(df_ids["station_id"])
 
 
     def frost(self, station_id, param, frost_api_base="https://frost.met.no", start_time=None, end_time=None,\
@@ -214,7 +224,7 @@ class FrostImporter:
             end_time = self.end_time
 
         # Fetching data from server
-        endpoint = frost_api_base + "/observations/v0.jsonld"
+        endpoint = frost_api_base + "/observations/v0.csv"
 
         payload = {'referencetime': start_time.isoformat() + "Z/" + end_time.isoformat() + "Z", 
                     'sources': station_id, 'elements': param}
@@ -223,27 +233,21 @@ class FrostImporter:
             r = requests.get(endpoint, params=payload, auth=(client_id,''))
             print("Trying " + r.url)
             r.raise_for_status()
+            
+            # Storing in dataframe
+            df = pd.read_csv(io.StringIO(r.content.decode('utf-8')))
+            df['referenceTime'] =  pd.to_datetime(df['referenceTime'])
+            df = df.reset_index()
+
+            return(df)
+
         except requests.exceptions.HTTPError as err:
-            raise Exception(err)
+            print(err)
+            return(None)
+            
         
-        data = r.json()['data']
-        
-        # full table
-        df = pd.DataFrame()
-        for element in data:
-            row = pd.DataFrame(element['observations'])
-            row['referenceTime'] = element['referenceTime']
-            row['sourceId'] = element['sourceId']
-            df = df.append(row)
 
-        df['referenceTime'] =  pd.to_datetime(df['referenceTime'])
-
-        df = df.reset_index()
-
-        return(df)
-
-
-    def postprocess_frost(self, timeseries, param, data):
+    def postprocess_frost(self, timeseries, station_id, param, data):
         """Tweaking the frost output timeseries such that it matches the times in df
         and attaching it to data as new column"""
 
@@ -255,18 +259,26 @@ class FrostImporter:
         timeseries = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
         timeseries = timeseries.set_index("referenceTime")
 
-        # NOTE: The Frost data can contain data for different "levels" for a parameter.
-        # Extracting the different levels and adding them as new column to data
-        if "index" in timeseries.columns:
-            for i in range( timeseries["index"].max()+1 ):
-                timeseriesIdx = timeseries.loc[timeseries["index"]==i][["value"]]
-                timeseriesIdx = timeseriesIdx.reset_index()
-                if "time" in data.columns:
-                    data = data.set_index("time")
-                data = data.reset_index()
-                data = data.join(timeseriesIdx["value"])
+        # Check if time series have same length
+        if len(data)==len(timeseries):
+            # NOTE: The Frost data can contain data for different "levels" for a parameter
+            cols = timeseries.columns
+            cols_param = [s for s in cols if param in s]
+
+            # Adding observations (requires reset of index)
+            timeseries = timeseries.reset_index()
+            if "time" in data.columns:
                 data = data.set_index("time")
-                data.rename(columns={'value':param+str(i)}, inplace=True)
+            data = data.reset_index()
+            data = data.join(timeseries[cols_param])
+            data = data.set_index("time")
+            
+            # Renaming new columns
+            for i in range(len(cols_param)):
+                data.rename(columns={cols_param[i]:station_id+param+str(i)}, inplace=True)
+        
+        else:
+            print("Frost time series misses values and is neglected")
 
         return data
 
