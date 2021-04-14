@@ -141,16 +141,14 @@ class FrostImporter:
         return(df_location, df)
 
 
-    def frost_location_ids(self, havvarsel_location, n, param=None, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
+    def frost_location_ids(self, havvarsel_location, n, param, client_id='3cf0c17c-9209-4504-910c-176366ad78ba'):
         """Identifying the n closest station_ids in the Frost database around havvarsel_locations"""
 
         # Fetching source data from frost for the given param 
         url = "https://frost.met.no/sources/v0.jsonld"
-        if param is not None:
-            payload = {"validtime":str(self.start_time.date())+"/"+str(self.end_time.date()),
+
+        payload = {"validtime":str(self.start_time.date())+"/"+str(self.end_time.date()),
                         "elements":param}
-        else: 
-            payload = {"validtime":self.start_time.date()+"/"+self.end_time.date()}
 
         try:
             r = requests.get(url, params=payload, auth=(client_id,''))
@@ -171,7 +169,33 @@ class FrostImporter:
 
         df = df.reset_index()
 
-        # Fetching 
+        # Fetching double check from observations/availableTimeseries
+        url_availability = "https://frost.met.no/observations/availableTimeSeries/v0.jsonld"
+
+        payload_availability = {'elements': param,
+                    'referencetime': self.start_time.isoformat() + "/" + self.end_time.isoformat() + ""}
+
+        try:
+            r_availability = requests.get(url_availability, params=payload_availability, auth=(client_id,''))
+            print("Trying " + r_availability.url)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise Exception(err)
+
+        data_availability = r_availability.json()['data']
+
+        id_list = []
+        for element in data_availability:
+            dict_tmp = {}
+            # NOTE: The sourceIds in observations/availableTimeseries have format AA00000:0 
+            # and only the first part is comparable to the sourceIds from Sources/
+            dict_tmp.update({"id":element["sourceId"].split(":")[0]})
+            id_list.append(dict_tmp)
+
+        df_availability = pd.DataFrame(id_list)
+        
+        # Extracting only those stations where really time series are available
+        df = df.loc[df['station_id'].isin(df_availability["id"])]
 
         # Building data frame with coordinates and distances with respect to havvarsel_location
         latlon_ref = (float(havvarsel_location["lat"][0]),float(havvarsel_location["lon"][0]))
@@ -249,12 +273,11 @@ class FrostImporter:
         timeseries = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
         timeseries = timeseries.set_index("referenceTime")
 
-
         # Check if time series have same length
         if len(data)==len(timeseries):
             # NOTE: The Frost data can contain data for different "levels" for a parameter
             cols = timeseries.columns
-            cols_param = [s for s in cols if param in s]
+            cols_param = [s for s in cols if param.lower() in s]
 
             # Adding observations (requires reset of index)
             timeseries = timeseries.reset_index()
@@ -287,7 +310,7 @@ class FrostImporter:
             param = params[ip]
             n = int(ns[ip])
             print("-------------------------------------------")
-            print("Parameter: ",param)
+            print("Parameter: ",param,".")
             # identifying closest station_id's on frost
             print("The closest ",n," Frost stations:")
             frost_station_ids = self.frost_location_ids(location, n, param)
