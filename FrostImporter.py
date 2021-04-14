@@ -63,11 +63,11 @@ class FrostImporter:
                     if "havvarsel" in frost_api_base:
                         assert len(params)==1, "Havvarsel-Frost only allows the single parameter \"temperature\""
                         _, data = self.havvarsel_frost(station_id, param, frost_api_base, self.start_time, self.end_time)
-                        data.to_csv("dataset.csv")
+                        data.to_csv("data.csv")
                     else:
                         data = self.frost(station_id, param, frost_api_base, self.start_time, self.end_time)
                         if data is not None:
-                            data.to_csv("dataset_"+param+".csv")
+                            data.to_csv("data_"+param+".csv")
 
         
         # Non-command line calls expect start and end_time to initialise a valid instance
@@ -208,7 +208,7 @@ class FrostImporter:
             df_dist = df_dist.append({"station_id":id, "lon":latlon[0], "lat":latlon[1], "dist":dist}, ignore_index=True)
 
         # Identify closest n stations 
-        df_ids = df_dist.nsmallest(n,"dist")#["station_id"]
+        df_ids = df_dist.nsmallest(n,"dist")
         df_ids = df_ids.reset_index(drop=True)
 
         print(df_ids)
@@ -236,27 +236,49 @@ class FrostImporter:
         if end_time is None:
             end_time = self.end_time
 
-        # Fetching data from server
-        endpoint = frost_api_base + "/observations/v0.csv"
+        timeseries = pd.DataFrame()
 
-        payload = {'referencetime': start_time.isoformat() + "Z/" + end_time.isoformat() + "Z", 
-                    'sources': station_id, 'elements': param}
+        # NOTE: There is a limit of 100.000 observation which can be fetched at once 
+        # Hence, time series over several years are may too long
+        # As work-around: We fetch the time series year by year 
+        # TODO: Only batch the time series if necessary
+        years = end_time.year - start_time.year
 
-        try:
-            r = requests.get(endpoint, params=payload, auth=(client_id,''))
-            print("Trying " + r.url)
-            r.raise_for_status()
+        for batch in range(years+1):
+            if batch == 0:
+                inter_start = start_time
+            else: 
+                inter_start = datetime.datetime.strptime(str(start_time.year+batch)+"-01-01T00:00", "%Y-%m-%dT%H:%M")
             
-            # Storing in dataframe
-            df = pd.read_csv(io.StringIO(r.content.decode('utf-8')))
-            df['referenceTime'] =  pd.to_datetime(df['referenceTime'])
-            df = df.reset_index()
+            if batch == years:
+                inter_end = end_time
+            else:
+                inter_end = datetime.datetime.strptime(str(start_time.year+batch)+"-12-31T23:59", "%Y-%m-%dT%H:%M")
 
-            return(df)
+            
+            # Fetching data from server
+            endpoint = frost_api_base + "/observations/v0.csv"
 
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            return(None)
+            payload = {'referencetime': inter_start.isoformat() + "Z/" + inter_end.isoformat() + "Z", 
+                        'sources': station_id, 'elements': param}
+
+            try:
+                r = requests.get(endpoint, params=payload, auth=(client_id,''))
+                print("Trying " + r.url)
+                r.raise_for_status()
+                
+                # Storing in dataframe
+                df = pd.read_csv(io.StringIO(r.content.decode('utf-8')))
+                df['referenceTime'] =  pd.to_datetime(df['referenceTime'])
+                df = df.reset_index()
+
+            except requests.exceptions.HTTPError as err:
+                print(err)
+                return(None)
+
+            timeseries = timeseries.append(df, ignore_index=True)
+        
+        return(timeseries)
             
         
 
