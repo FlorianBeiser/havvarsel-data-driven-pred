@@ -270,29 +270,33 @@ class FrostImporter:
         # TODO: match cloud_area_fraction timeseries by hand
         if "time" not in data.columns:
             data = data.reset_index()
-        timeseries = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
-        timeseries = timeseries.set_index("referenceTime")
+        ts = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
+        ts = ts.set_index("referenceTime")
 
         # Check if time series have same length
-        if len(data)==len(timeseries):
+        if len(data)==len(ts):
             # NOTE: The Frost data can contain data for different "levels" for a parameter
-            cols = timeseries.columns
+            cols = ts.columns
             cols_param = [s for s in cols if param.lower() in s]
 
             # Adding observations (requires reset of index)
-            timeseries = timeseries.reset_index()
+            ts = ts.reset_index()
             if "time" in data.columns:
                 data = data.set_index("time")
             data = data.reset_index()
-            data = data.join(timeseries[cols_param])
+            data = data.join(ts[cols_param])
             data = data.set_index("time")
             
             # Renaming new columns
             for i in range(len(cols_param)):
                 data.rename(columns={cols_param[i]:station_id+param+str(i)}, inplace=True)
+            print("Data is added to the data set")
         
         else:
-            print("Frost time series misses values and is neglected")
+            print("Frost time series is neglected! (E.g. missing values or non-overlapping observation times)")
+            timeseries.to_csv("data_"+station_id+param+".csv")
+            print("The time series is saved into a separate file for manual post-processing.")
+
 
         return data
 
@@ -324,7 +328,6 @@ class FrostImporter:
                 if timeseries is not None:
                     print("Postprocessing the fetched data...")
                     data = self.postprocess_frost(timeseries,frost_station_ids[i],param,data)
-                    print("Done. (Data is added to the data set)")
         # save dataset
         print("Dataset is constructed and will be saved now...")
         data.to_csv("dataset.csv")
