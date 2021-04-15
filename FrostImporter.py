@@ -292,20 +292,41 @@ class FrostImporter:
         if "time" not in data.columns:
             data = data.reset_index()
         ts = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
-        ts = ts.rename(columns={"referenceTime":"time"})
 
         # NOTE: The Frost time series may misses observations at times which are present in the Havvarsel timeseries
         if len(data)>len(ts):
-            print("The time series misses observation(s). Those will be filled with their closest observation...")
-            missing = data[~data["time"].isin(timeseries_orig["referenceTime"])]["time"]
-            # TODO:... add stuff from notebook
-            print("The time series is saved into a separate file for manual post-processing.")
+            print("The time series misses observation(s)...")
+            missing = data[~data["time"].isin(timeseries["referenceTime"])]["time"]
+            # Find closest observation for times in missing
+            # And construct dataframe to fill with
+            fill = pd.DataFrame()
+            for t in missing:
+                # Ensuring pd.datetime in timeseries dataframe 
+                if "referenceTime" in timeseries.columns:
+                    timeseries["referenceTime"] = pd.to_datetime(timeseries["referenceTime"])
+                    timeseries = timeseries.set_index("referenceTime")
 
+                row = timeseries.iloc[[timeseries.index.get_loc(t, method="nearest")]]
+                row = row.reset_index()
+                row["referenceTime"] = t
+
+                fill = fill.append(row)
+
+            fill = fill.set_index("referenceTime")
+            fill = fill.reset_index()
+
+            # Attaching "fake observations" to relevant timeseries
+            ts = ts.append(fill)
+            ts = ts.reset_index()
+
+            print("Missing observations have been filled with the value from the closest neighbor.")
+            
         # NOTE: The Frost data can contain data for different "levels" for a parameter
         cols_param = [s for s in ts.columns if param.lower() in s]
 
         # Left join to add new observations 
         # Join performed on "time", this makes "time" the index
+        ts = ts.rename(columns={"referenceTime":"time"})
         data = data.reset_index()
         data = pd.merge(data.set_index("time"), ts.set_index("time")[cols_param], how="left", on="time")
         data = data.drop(columns=["index"])
