@@ -293,21 +293,18 @@ class FrostImporter:
         if "time" not in data.columns:
             data = data.reset_index()
         ts = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
-        ts = ts.set_index("referenceTime")
+        ts = ts.rename(columns={"referenceTime":"time"})
 
         # Check if time series have same length
         if len(data)==len(ts):
             # NOTE: The Frost data can contain data for different "levels" for a parameter
-            cols = ts.columns
-            cols_param = [s for s in cols if param.lower() in s]
+            cols_param = [s for s in ts.columns if param.lower() in s]
 
-            # Adding observations (requires reset of index)
-            ts = ts.reset_index()
-            if "time" in data.columns:
-                data = data.set_index("time")
+            # (complete) inner join to add new observations 
+            # Join performed on "time", this makes "time" the index
             data = data.reset_index()
-            data = data.join(ts[cols_param])
-            data = data.set_index("time")
+            data = pd.concat([data.set_index("time"),ts.set_index("time")[cols_param]], join="inner", axis=1)
+            data = data.drop(columns=["index"])
             
             # Renaming new columns
             for i in range(len(cols_param)):
