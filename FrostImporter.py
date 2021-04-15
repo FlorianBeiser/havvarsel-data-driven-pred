@@ -289,33 +289,31 @@ class FrostImporter:
         # NOTE: The Frost data commonly holds observations for more times 
         # than the referenced Havvarsel Frost timeseries.
         # Extracting observations only for relevant times 
-        # TODO: match cloud_area_fraction timeseries by hand
         if "time" not in data.columns:
             data = data.reset_index()
         ts = timeseries.loc[timeseries['referenceTime'].isin(data["time"])]
         ts = ts.rename(columns={"referenceTime":"time"})
 
-        # Check if time series have same length
-        if len(data)==len(ts):
-            # NOTE: The Frost data can contain data for different "levels" for a parameter
-            cols_param = [s for s in ts.columns if param.lower() in s]
-
-            # (complete) inner join to add new observations 
-            # Join performed on "time", this makes "time" the index
-            data = data.reset_index()
-            data = pd.concat([data.set_index("time"),ts.set_index("time")[cols_param]], join="inner", axis=1)
-            data = data.drop(columns=["index"])
-            
-            # Renaming new columns
-            for i in range(len(cols_param)):
-                data.rename(columns={cols_param[i]:station_id+param+str(i)}, inplace=True)
-            print("Data is added to the data set")
-        
-        else:
-            print("Frost time series is neglected! (E.g. missing values or non-overlapping observation times)")
-            timeseries.to_csv("data_"+station_id+param+".csv")
+        # NOTE: The Frost time series may misses observations at times which are present in the Havvarsel timeseries
+        if len(data)>len(ts):
+            print("The time series misses observation(s). Those will be filled with their closest observation...")
+            missing = data[~data["time"].isin(timeseries_orig["referenceTime"])]["time"]
+            # TODO:... add stuff from notebook
             print("The time series is saved into a separate file for manual post-processing.")
 
+        # NOTE: The Frost data can contain data for different "levels" for a parameter
+        cols_param = [s for s in ts.columns if param.lower() in s]
+
+        # Left join to add new observations 
+        # Join performed on "time", this makes "time" the index
+        data = data.reset_index()
+        data = pd.merge(data.set_index("time"), ts.set_index("time")[cols_param], how="left", on="time")
+        data = data.drop(columns=["index"])
+        
+        # Renaming new columns
+        for i in range(len(cols_param)):
+            data.rename(columns={cols_param[i]:station_id+param+str(i)}, inplace=True)
+        print("Data is added to the data set")
 
         return data
 
