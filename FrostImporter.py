@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-"""Fetch observations from Havvarsel Frost (havvarsel-frost.met.no) and Frost (frost.met.no) 
-
-and do something (for now: print and plot) with them
+"""Fetch observations from Havvarsel Frost (havvarsel-frost.met.no) and Frost (frost.met.no) and construct csv dataset 
 
 Test havvarsel-frost.met.no (badevann): 
 'python3 frost-plots.py -id 5 -param temperature -S 2019-01-01T00:00 -E 2019-12-31T23:59'
@@ -38,6 +36,7 @@ class FrostImporter:
         If nothing is specified as argument, command line arguments are expected.
         Otherwise an empty instance of the class is created
         """
+
         # For command line calls the class reads the parameters from argsPars
         if start_time is None:
             frost_api_base, station_id, params, ns, start_time, end_time = self.__parse_args()
@@ -99,7 +98,7 @@ class FrostImporter:
 
         try:
             r = requests.get(endpoint, params=payload)
-            print("Trying " + r.url)
+            self.__log("Trying " + r.url)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise Exception(err)
@@ -111,7 +110,7 @@ class FrostImporter:
         header_list = [header["id"]["buoyID"],header["id"]["parameter"]]
         header_list.extend([header["extra"]["name"], header["extra"]["pos"]["lon"], header["extra"]["pos"]["lat"]])
         df_location = pd.DataFrame([header_list], columns=["buoyID","parameter","name","lon","lat"])
-        print(df_location)
+        self.__log(df_location.to_string())
 
         # extract the actual observations from the Frost response
         # NOTE: Assumes that the response contains only one timeseries
@@ -152,7 +151,7 @@ class FrostImporter:
 
         try:
             r = requests.get(url, params=payload, auth=(client_id,''))
-            print("Trying " + r.url)
+            self.__log("Trying " + r.url)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise Exception(err)
@@ -177,7 +176,7 @@ class FrostImporter:
 
         try:
             r_availability = requests.get(url_availability, params=payload_availability, auth=(client_id,''))
-            print("Trying " + r_availability.url)
+            self.__log("Trying " + r_availability.url)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise Exception(err)
@@ -211,7 +210,7 @@ class FrostImporter:
         df_ids = df_dist.nsmallest(n,"dist")
         df_ids = df_ids.reset_index(drop=True)
 
-        print(df_ids)
+        self.__log(df_ids.to_string())
         
         return(df_ids["station_id"])
 
@@ -264,7 +263,7 @@ class FrostImporter:
 
             try:
                 r = requests.get(endpoint, params=payload, auth=(client_id,''))
-                print("Trying " + r.url)
+                self.__log("Trying " + r.url)
                 r.raise_for_status()
                 
                 # Storing in dataframe
@@ -273,7 +272,7 @@ class FrostImporter:
                 df = df.reset_index()
 
             except requests.exceptions.HTTPError as err:
-                print(err)
+                self.__log(str(err))
                 return(None)
 
             timeseries = timeseries.append(df, ignore_index=True)
@@ -295,7 +294,7 @@ class FrostImporter:
 
         # NOTE: The Frost time series may misses observations at times which are present in the Havvarsel timeseries
         if len(data)>len(ts):
-            print("The time series misses observation(s)...")
+            self.__log("The time series misses observation(s)...")
             missing = data[~data["time"].isin(timeseries["referenceTime"])]["time"]
             # Find closest observation for times in missing
             # And construct dataframe to fill with
@@ -319,7 +318,7 @@ class FrostImporter:
             ts = ts.append(fill)
             ts = ts.reset_index()
 
-            print("Missing observations have been filled with the value from the closest neighbor.")
+            self.__log("Missing observations have been filled with the value from the closest neighbor.")
             
         # NOTE: The Frost data can contain data for different "levels" for a parameter
         cols_param = [s for s in ts.columns if param.lower() in s]
@@ -334,7 +333,7 @@ class FrostImporter:
         # Renaming new columns
         for i in range(len(cols_param)):
             data.rename(columns={cols_param[i]:station_id+param+str(i)}, inplace=True)
-        print("Data is added to the data set")
+        self.__log("Data is added to the data set")
 
         return data
 
@@ -343,33 +342,33 @@ class FrostImporter:
         """ construct a csv file containing the water_temperature series of the selected station of havvarsel frost
         and adds params time series from the n closest frost stations
         """
-        print("-------------------------------------------")
-        print("Starting the construction of an data set...")
+        self.__log("-------------------------------------------")
+        self.__log("Starting the construction of an data set...")
         # meta data and time series from havvarsel frost
-        print("The Havvarsel Frost observation site:")
+        self.__log("The Havvarsel Frost observation site:")
         location, data = self.havvarsel_frost(station_id)
         for ip in range(len(params)):
             param = params[ip]
             n = int(ns[ip])
-            print("-------------------------------------------")
-            print("Parameter: ",param,".")
+            self.__log("-------------------------------------------")
+            self.__log("Parameter: "+param+".")
             # identifying closest station_id's on frost
-            print("The closest ",n," Frost stations:")
+            self.__log("The closest "+str(n)+" Frost stations:")
             frost_station_ids = self.frost_location_ids(location, n, param)
             # Fetching data for those ids and add them to data
             for i in range(len(frost_station_ids)):
                 # NOTE: Per call a maximum of 100.000 observations can be fetched at once
                 # Some time series exceed this limit.
                 # TODO: Fetch data year by year to stay within the limit 
-                print("Fetching data for ", frost_station_ids[i])
+                self.__log("Fetching data for "+ str(frost_station_ids[i]))
                 timeseries = self.frost(frost_station_ids[i],param)
                 if timeseries is not None:
-                    print("Postprocessing the fetched data...")
+                    self.__log("Postprocessing the fetched data...")
                     data = self.postprocess_frost(timeseries,frost_station_ids[i],param,data)
         # save dataset
-        print("Dataset is constructed and will be saved now...")
+        self.__log("Dataset is constructed and will be saved now...")
         data.to_csv("dataset.csv")
-        print("Ready!")
+        self.__log("Ready!")
 
 
 
@@ -396,6 +395,12 @@ class FrostImporter:
             help='end time in ISO format (YYYY-MM-DDTHH:MM) UTC')
         res = parser.parse_args(sys.argv[1:])
         return res.frost_api_base, res.station_id, res.param, res.n, res.start_time, res.end_time
+
+    
+    def __log(self, msg):
+        print(msg)
+        with open("log.txt", 'a') as f:
+            f.write(msg + '\n')
 
 if __name__ == "__main__":
 
