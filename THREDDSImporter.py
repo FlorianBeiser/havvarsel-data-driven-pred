@@ -8,10 +8,9 @@ Hourly resolution (from 2017-02-20T00:00): https://thredds.met.no/thredds/fou-hi
 Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/norkyst800m.html
 
 Test: 
-'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 3 -param temperature -S 2021-04-14T00:00 -E 2021-04-15T00:00'
+'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:00 -E 2021-04-14T23:00'
 
 TODO:
- - Add support for -S and -E over multiple files (<-- MLS will fix this this evening!)
  - Tune processing and storing of observational data sets (to suite whatever code that will use the data sets)
  - (See TODOs in FrostImporter.py)
  - ...
@@ -24,30 +23,42 @@ import netCDF4
 import numpy as np
 import pyproj as proj
 import sys
+import os
 
 import matplotlib.pyplot as plt
 
 class THREDDSImporter:
     def __init__(self, frost_api_base=None, station_id=None, start_time=None, end_time=None):
         lon, lat, depth, params, start_time, end_time = self.__parse_args()
+
+        self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+        self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
  
-        filenames = ["https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021041500.nc",
-                    "https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021041400.nc",
-                    "https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021041300.nc",
-                    "https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021041300.nc",
-                    "https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021041200.nc",
-                    "https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021041100.nc"]
+        filenames = []
+        #print(self.start_time.strftime("%Y%m%d%H"))
+        #print(self.end_time.strftime("%Y%m%d%H"))
+
+        # add all days in specified time interval (including the day self.end_time)
+        for single_date in self.daterange(self.start_time, self.end_time + datetime.timedelta(days=1)):
+            filenames.append(
+                single_date.strftime("https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.%Y%m%d00.nc"))
 
         data = {}
         for param in params:
-            data[param] = self.__norkyst_from_thredds(filenames, param, lon, lat, depth)
+            data[param] = self.__norkyst_from_thredds(filenames, param, lon, lat, self.start_time, self.end_time, depth)
+            print(data[param])
 
         # plots first param
         fig = plt.figure()
         plt.plot(data[params[0]])
         plt.show()
 
-    def __norkyst_from_thredds(self, filenames, param, lon, lat, depth=None):
+    @staticmethod
+    def daterange(start_date, end_date):
+        for n in range(int((end_date - start_date).days)):
+            yield start_date + datetime.timedelta(n)
+
+    def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
         nc  = netCDF4.MFDataset(filenames)
 
         # handle projection
@@ -70,16 +81,31 @@ class THREDDSImporter:
         # find coordinate of gridpoint to analyze
         x1=self.__find_nearest_index(xproj1[0,:],xp1)
         y1=self.__find_nearest_index(yproj1[:,0],yp1)
-        print('Coordinates model1 (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
+
+        print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
+
+        # find correct time indices for start and end of timeseries
+        # TODO: The date2index seems kind of buggy. Or am I doing something wrong? Needs further debugging...
+        all_times = nc.variables["time"]
+        
+        first = netCDF4.num2date(all_times[0],all_times.units)
+        last = netCDF4.num2date(all_times[-1],all_times.units)
+        print(first.strftime("%Y-%m-%dT%H:%M"))
+        print(last.strftime("%Y-%m-%dT%H:%M"))
+
+        t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="nearest")
+        print(t1)
+        t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="nearest")
+        print(t2)
 
         if depth is not None:
             # find correct depth index
             all_depths = nc.variables["depth"][:]
             depth_index = np.where(all_depths == int(depth))[0][0]
             
-            return nc.variables[param][depth_index,:,y1,x1]
+            return nc.variables[param][t1:t2,depth_index,y1,x1]
         else:
-            return nc.variables[param][:,y1,x1]
+            return nc.variables[param][t1:t2,y1,x1]
 
     @staticmethod
     def __find_nearest_index(array,value):
