@@ -4,8 +4,9 @@
 
 and do something (for now: print and plot) with them
 
-Hourly resolution (from 2017-02-20T00:00): https://thredds.met.no/thredds/fou-hi/norkyst800v2.html
-Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/norkyst800m.html
+Hourly resolution (from 2017-02-20T00:00 up to today): https://thredds.met.no/thredds/fou-hi/norkyst800v2.html
+
+Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/norkyst800m.html (NOT SUPPORTED YET!)
 
 Test: 
 
