@@ -8,10 +8,17 @@ Hourly resolution (from 2017-02-20T00:00): https://thredds.met.no/thredds/fou-hi
 Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/norkyst800m.html
 
 Test: 
-'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:00 -E 2021-04-14T23:00'
+
+Find sea surface elevation (no use of --depth):
+'python3 THREDDSImporter.py -lon 3 -lat 60 -param zeta -S 2021-04-11T00:00 -E 2021-04-14T23:00'
+
+Find first available timestep before given start time and after given end time for temperature at depth 100 m:
+'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:45 -E 2021-04-14T11:15'
 
 TODO:
+ - More error handling
  - Tune processing and storing of observational data sets (to suite whatever code that will use the data sets)
+ - Nice to have: Make it possible to get multi-level and single-level params in the same fetch
  - (See TODOs in FrostImporter.py)
  - ...
 """
@@ -35,13 +42,15 @@ class THREDDSImporter:
         self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
  
         filenames = []
-        #print(self.start_time.strftime("%Y%m%d%H"))
-        #print(self.end_time.strftime("%Y%m%d%H"))
+        print("Filename timestamp based on start_time: " + self.start_time.strftime("%Y%m%d%H"))
+        print("Filename timestamp based on end_time: " + self.end_time.strftime("%Y%m%d%H"))
 
         # add all days in specified time interval (including the day self.end_time)
-        for single_date in self.daterange(self.start_time, self.end_time + datetime.timedelta(days=1)):
+        for single_date in self.daterange(self.start_time, self.end_time):
             filenames.append(
                 single_date.strftime("https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.%Y%m%d00.nc"))
+
+        print("Reading following files: " + str(filenames))
 
         data = {}
         for param in params:
@@ -55,8 +64,8 @@ class THREDDSImporter:
 
     @staticmethod
     def daterange(start_date, end_date):
-        for n in range(int((end_date - start_date).days)):
-            yield start_date + datetime.timedelta(n)
+        for i in range(int((end_date.day - start_date.day) + 1)): # (include end_date)
+            yield start_date + datetime.timedelta(i)
 
     def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
         nc  = netCDF4.MFDataset(filenames)
@@ -85,18 +94,15 @@ class THREDDSImporter:
         print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
 
         # find correct time indices for start and end of timeseries
-        # TODO: The date2index seems kind of buggy. Or am I doing something wrong? Needs further debugging...
         all_times = nc.variables["time"]
         
         first = netCDF4.num2date(all_times[0],all_times.units)
         last = netCDF4.num2date(all_times[-1],all_times.units)
-        print(first.strftime("%Y-%m-%dT%H:%M"))
-        print(last.strftime("%Y-%m-%dT%H:%M"))
+        print("First available time: " + first.strftime("%Y-%m-%dT%H:%M"))
+        print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
 
-        t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="nearest")
-        print(t1)
-        t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="nearest")
-        print(t2)
+        t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
+        t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="after")
 
         if depth is not None:
             # find correct depth index
