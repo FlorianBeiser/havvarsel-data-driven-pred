@@ -10,4 +10,7 @@ dependencies:
 - matplotlib
 - pandas
 - requests
-- haversine 
+- haversine
+- netCDF4
+- pyprop
+- pyproj
