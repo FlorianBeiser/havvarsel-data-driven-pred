@@ -68,10 +68,18 @@ class THREDDSImporter:
 
     @staticmethod
     def daterange(start_date, end_date):
-        for i in range(int((end_date.day - start_date.day) + 1)): # (include end_date)
+        for i in range(int((end_date - start_date).days + 1)): # (include end_date)
             yield start_date + datetime.timedelta(i)
 
     def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
+        # Test filenames for validity
+        for filename in filenames:
+            try:
+                nc_test = netCDF4.Dataset(filename)
+            except:
+                filenames.remove(filename)
+                print("File", filenames, "got removed!")
+        # Load multi-file object
         nc  = netCDF4.MFDataset(filenames)
 
         # handle projection
