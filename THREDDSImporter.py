@@ -32,6 +32,8 @@ import numpy as np
 import pyproj as proj
 import sys
 import os
+import datetime
+import pandas as pd 
 
 import matplotlib.pyplot as plt
 
@@ -60,8 +62,9 @@ class THREDDSImporter:
 
         # plots first param
         fig = plt.figure()
-        plt.plot(data[params[0]])
+        plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
         plt.show()
+        plt.savefig("fig.png")
 
     @staticmethod
     def daterange(start_date, end_date):
@@ -101,7 +104,7 @@ class THREDDSImporter:
         last = netCDF4.num2date(all_times[-1],all_times.units)
         print("First available time: " + first.strftime("%Y-%m-%dT%H:%M"))
         print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
-
+  
         t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
         t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="after")
 
@@ -109,15 +112,49 @@ class THREDDSImporter:
             # find correct depth index
             all_depths = nc.variables["depth"][:]
             depth_index = np.where(all_depths == int(depth))[0][0]
-            
-            return nc.variables[param][t1:t2,depth_index,y1,x1]
+
+            # EXTRACT REFERENCE TIMES
+            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
+            # but since pandas does not understand that format we have to cast to datetime by hand
+            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
+            datetimes = self.__cftime2datetime(cftimes)
+
+            # EXTRACT DATA
+            data = nc.variables[param][t1:t2,depth_index,y1,x1]
+
+            # Dataframe for return
+            timeseries = pd.DataFrame({"referenceTime":datetimes, param+depth:data})
+
+            return timeseries
         else:
-            return nc.variables[param][t1:t2,y1,x1]
+            # EXTRACT REFERENCE TIMES
+            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
+            # but since pandas does not understand that format we have to cast to datetime by hand
+            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
+            datetimes = self.__cftime2datetime(cftimes)
+
+            # EXTRACT DATA
+            data = nc.variables[param][t1:t2,y1,x1]
+
+            # Dataframe for return
+            timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
+
+            return timeseries
+
+    @staticmethod
+    def __cftime2datetime(cftimes):
+        datetimes = []
+        for t in range(len(cftimes)):
+            new_datetime = datetime.datetime(cftimes[t].year, cftimes[t].month, cftimes[t].day, cftimes[t].hour, cftimes[t].minute)
+            datetimes.append(new_datetime)
+        return datetimes
+
 
     @staticmethod
     def __find_nearest_index(array,value):
         idx = (np.abs(array-value)).argmin()
         return idx
+
 
     @staticmethod
     def __parse_args():
