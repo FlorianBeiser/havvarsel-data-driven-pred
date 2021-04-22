@@ -68,7 +68,9 @@ class THREDDSImporter:
 
     @staticmethod
     def daterange(start_date, end_date):
-        for i in range(int((end_date - start_date).days + 1)): # (include end_date)
+        # +1 to include end_date 
+        # and +1 in case the time interval is not divisible with 24 hours (to get the last hours into the last day)
+        for i in range(int((end_date - start_date).days + 2)):
             yield start_date + datetime.timedelta(i)
 
     def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
