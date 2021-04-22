@@ -60,6 +60,10 @@ class THREDDSImporter:
             data[param] = self.__norkyst_from_thredds(filenames, param, lon, lat, self.start_time, self.end_time, depth)
             print(data[param])
 
+        # save file 
+        for param in params:
+            data[param].to_csv("dataset_"+param+".csv")
+
         # plots first param
         fig = plt.figure()
         plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
@@ -118,6 +122,7 @@ class THREDDSImporter:
         for filename in filenames:
             try:
                 # Load a single file
+                print("Loading ", filename, "...")
                 nc = netCDF4.Dataset(filename)
 
                 # TODO: find correct time indices for start and end of timeseries
