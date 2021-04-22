@@ -72,83 +72,97 @@ class THREDDSImporter:
             yield start_date + datetime.timedelta(i)
 
     def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
-        # Test filenames for validity
+        # Find coordinates
+        coordinate_success = False
         for filename in filenames:
             try:
-                nc_test = netCDF4.Dataset(filename)
+                # Load a single file
+                nc = netCDF4.Dataset(filename)
+                # handle projection
+                for var in ['polar_stereographic','projection_stere','grid_mapping']:
+                    if var in nc.variables.keys():
+                        try:
+                            proj1 = nc.variables[var].proj4
+                        except:
+                            proj1 = nc.variables[var].proj4string
+                p1 = proj.Proj(str(proj1))
+                xp1,yp1 = p1(lon,lat)
+                for var in ['latitude','lat']:
+                    if var in nc.variables.keys():
+                        lat1 = nc.variables[var][:]
+                for var in ['longitude','lon']:
+                    if var in nc.variables.keys():
+                        lon1 = nc.variables[var][:]
+                xproj1,yproj1 = p1(lon1,lat1)
+
+                # find coordinate of gridpoint to analyze
+                x1=self.__find_nearest_index(xproj1[0,:],xp1)
+                y1=self.__find_nearest_index(yproj1[:,0],yp1)
+
+                print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
+
+                coordinate_success = True
+            
             except:
                 filenames.remove(filename)
-                print("File", filenames, "got removed!")
-        # Load multi-file object
-        nc  = netCDF4.MFDataset(filenames)
+                print("File", filename, "got removed!")
 
-        # handle projection
-        for var in ['polar_stereographic','projection_stere','grid_mapping']:
-            if var in nc.variables.keys():
-                try:
-                    proj1 = nc.variables[var].proj4
-                except:
-                    proj1 = nc.variables[var].proj4string
-        p1 = proj.Proj(str(proj1))
-        xp1,yp1 = p1(lon,lat)
-        for var in ['latitude','lat']:
-            if var in nc.variables.keys():
-                lat1 = nc.variables[var][:]
-        for var in ['longitude','lon']:
-            if var in nc.variables.keys():
-                lon1 = nc.variables[var][:]
-        xproj1,yproj1 = p1(lon1,lat1)
-
-        # find coordinate of gridpoint to analyze
-        x1=self.__find_nearest_index(xproj1[0,:],xp1)
-        y1=self.__find_nearest_index(yproj1[:,0],yp1)
-
-        print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
-
-        # find correct time indices for start and end of timeseries
-        all_times = nc.variables["time"]
+            if coordinate_success:
+                break
         
-        first = netCDF4.num2date(all_times[0],all_times.units)
-        last = netCDF4.num2date(all_times[-1],all_times.units)
-        print("First available time: " + first.strftime("%Y-%m-%dT%H:%M"))
-        print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
-  
-        t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
-        t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="after")
 
-        if depth is not None:
-            # find correct depth index
-            all_depths = nc.variables["depth"][:]
-            depth_index = np.where(all_depths == int(depth))[0][0]
+        # Test filenames for validity
+        full_timeseries = pd.DataFrame()
+        for filename in filenames:
+            try:
+                # Load a single file
+                nc = netCDF4.Dataset(filename)
 
-            # EXTRACT REFERENCE TIMES
-            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-            # but since pandas does not understand that format we have to cast to datetime by hand
-            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
-            datetimes = self.__cftime2datetime(cftimes)
+                # TODO: find correct time indices for start and end of timeseries
+                # all_times = nc.variables["time"]
+                
+                # first = netCDF4.num2date(all_times[0],all_times.units)
+                # last = netCDF4.num2date(all_times[-1],all_times.units)
+                # print("First available time: " + first.strftime("%Y-%m-%dT%H:%M"))
+                # print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
+        
+                # t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
+                # t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="after")
 
-            # EXTRACT DATA
-            data = nc.variables[param][t1:t2,depth_index,y1,x1]
+                # EXTRACT REFERENCE TIMES
+                # the times fetched from Thredds are in the cftime.GregorianDatetime format,
+                # but since pandas does not understand that format we have to cast to datetime by hand
+                cftimes = netCDF4.num2date(nc.variables["time"][:], nc.variables["time"].units)
+                datetimes = self.__cftime2datetime(cftimes)
 
-            # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param+depth:data})
+                if depth is not None:
+                    # find correct depth index
+                    all_depths = nc.variables["depth"][:]
+                    depth_index = np.where(all_depths == int(depth))[0][0]
 
-            return timeseries
-        else:
-            # EXTRACT REFERENCE TIMES
-            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-            # but since pandas does not understand that format we have to cast to datetime by hand
-            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
-            datetimes = self.__cftime2datetime(cftimes)
+                    # EXTRACT DATA
+                    data = nc.variables[param][:,depth_index,y1,x1]
 
-            # EXTRACT DATA
-            data = nc.variables[param][t1:t2,y1,x1]
+                    # Dataframe for return
+                    timeseries = pd.DataFrame({"referenceTime":datetimes, param+depth:data})
 
-            # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
+                else:
+                    # EXTRACT DATA
+                    data = nc.variables[param][:,y1,x1]
 
-            return timeseries
+                    # Dataframe for return
+                    timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
+                
+                full_timeseries = full_timeseries.append(timeseries, ignore_index=True)
 
+            except:
+                filenames.remove(filename)
+                print("File", filename, "got removed!")
+                
+        return full_timeseries
+        
+        
+      
     @staticmethod
     def __cftime2datetime(cftimes):
         datetimes = []
