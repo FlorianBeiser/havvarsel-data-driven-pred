@@ -78,9 +78,10 @@ class THREDDSImporter:
         for filename in filenames:
             try:
                 nc_test = netCDF4.Dataset(filename)
-            except:
+            except OSError as err:
+                print("OS error: {0}".format(err))
                 filenames.remove(filename)
-                print("File", filenames, "got removed!")
+
         # Load multi-file object
         nc  = netCDF4.MFDataset(filenames)
 
