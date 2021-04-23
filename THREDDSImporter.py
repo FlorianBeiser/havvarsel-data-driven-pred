@@ -76,13 +76,12 @@ class THREDDSImporter:
     def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
         # Test filenames for validity
         clean_filenames = []
-        for filename in filenames:
+        for f in range(len(filenames)):
             try:
-                nc_test = netCDF4.Dataset(filename)
-                clean_filenames.append(filename)
+                nc_test = netCDF4.Dataset(filenames[f])
+                clean_filenames.append(filenames[f])
             except OSError as err:
                 print("OS error: {0}".format(err))
-                filenames.remove(filename)
 
         print(clean_filenames)
 
