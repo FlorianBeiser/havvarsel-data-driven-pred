@@ -19,5 +19,6 @@ conda activate datadriven
 
 ## How to use
 
-An example on how to construct a workable dataset with data from Havvarsel-Frost and Frost with step-by-step explanations can be found in `forst-dataset-construction.ipynb` (remark the WARNINGs and TODOs in there). 
+An example on how to construct a workable dataset with data from Havvarsel-Frost and Frost (not yet THREDDS) can be executed by `run_example.sh` (read the header therein for the technicalities).
+
 The technical functionalities are hidden in `FrostImporter.py` (remark the introduction and the NOTEs there for further technical information).
