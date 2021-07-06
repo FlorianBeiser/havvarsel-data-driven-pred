@@ -2,6 +2,8 @@
 
 Playpen for experimentation on and prototyping of data-driven predictions in the Havvarsel project.
 
+The repository provides code to fetch data from different sources (see `DataImporter.py` for details) and provides a testbed for the data analysis (see `DataAnalyser.py` for details).
+
 ## Requirements and set-up 
 
 This sandbox requires the installation of python3 and some related packages:
@@ -19,6 +21,6 @@ conda activate datadriven
 
 ## How to use
 
-An example on how to construct a workable dataset with data from Havvarsel-Frost and Frost (not yet THREDDS) can be executed by `run_example.sh` (read the header therein for the technicalities).
+Each file contains further information and a small example call in its header. To get familiar with the code, we recommend to take a look at those. 
 
-The technical functionalities are hidden in `FrostImporter.py` (remark the introduction and the NOTEs there for further technical information).
+An example on how to construct a workable dataset can be executed by `run_example.sh` (read the header therein for the technicalities) - WARNING: Long run time!

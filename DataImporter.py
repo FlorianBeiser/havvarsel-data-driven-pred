@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 
-"""Fetch observations from Havvarsel Frost (havvarsel-frost.met.no) and Frost (frost.met.no) and construct csv dataset 
+"""
+Fetching observations observational and forecast data 
+ at/around a specified swimming site in the havvarsel-frost data base
+Constructing dataset and saving as csv
+ to be used for data driven predictions
 
-Test havvarsel-frost.met.no (badevann): 
-'python3 frost-plots.py -id 5 -param temperature -S 2019-01-01T00:00 -E 2019-12-31T23:59'
-
-Test frost.met.no (observations) - THIS TAKES A COUPLE OF MINUTES TO RUN: 
-'python3 frost-plots.py --fab https://frost.met.no -id SN18700 -param air_temperature -S 2019-01-01T00:00 -E 2019-12-31T23:59'
-(other available params we have discussed to include: wind_speed and relative_humidity and cloud_area_fraction and sum(duration_of_sunshinePT1H) or mean(surface_downwelling_shortwave_flux_in_air PT1H) )
+The data sources include
+- havvarsel-frost (see HavvarselFrostImporter)
+- frost (see FrostImporter)
+- norkyst800 (see THREDDS)
 
 Test for the construction of a data set:
-'python DataImporter.py --fab all -id 1 -param air_temperature -n 10 -param "sum(duration_of_sunshine PT1H) -n 5 -S 2019-01-01T00:00 -E 2019-12-31T23:59'
+'python DataImporter.py -id 1 -param air_temperature -n 10 -param "air_temperature" -n 2 -S 2019-06-01T00:00 -E 2019-06-302T23:59'
 
 TODO:
  - Tune processing and storing of observational data sets (to suite whatever code that will use the data sets)
@@ -22,14 +24,9 @@ TODO:
 
 import argparse
 import sys
-import json
 import datetime
-import requests
-import io
 from traceback import format_exc
 import pandas as pd
-import numpy as np
-from haversine import haversine 
 
 import HavvarselFrostImporter
 import FrostImporter
