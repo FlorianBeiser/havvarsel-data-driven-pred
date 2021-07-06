@@ -29,4 +29,4 @@ n6=2
 param7="mean(surface_downwelling_shortwave_flux_in_air PT1H)"
 n7=1
 
-python FrostImporter.py --fab all -id 1 -param "$param1" -n $n1 -param "$param2" -n $n2 -param "$param3" -n $n3 -param "$param4" -n $n4 -param "$param5" -n $n5 -param "$param6" -n $n6 -param "$param7" -n $n7 -S 2016-01-01T00:00 -E 2020-12-31T23:59
+python DataImporter.py --fab all -id 1 -param "$param1" -n $n1 -param "$param2" -n $n2 -param "$param3" -n $n3 -param "$param4" -n $n4 -param "$param5" -n $n5 -param "$param6" -n $n6 -param "$param7" -n $n7 -S 2016-01-01T00:00 -E 2020-12-31T23:59
