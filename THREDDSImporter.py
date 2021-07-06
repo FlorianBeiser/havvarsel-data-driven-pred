@@ -22,6 +22,15 @@ TODO:
  - Nice to have: Make it possible to get multi-level and single-level params in the same fetch
  - (See TODOs in FrostImporter.py)
  - ...
+
+IDEA: 
+Use forecast weather data instead of observation weather data.
+
+The netCDF files for the weather forecast can be found on THREDDS: 
+e.g. "https://thredds.met.no/thredds/dodsC/metpparchive/2018/12/31/met_analysis_1_0km_nordic_20181231T23Z.nc"
+
+for more details see https://thredds.met.no/thredds/metno.html
+and the MET post-processed products/Archive/Operational/
 """
 
 import argparse
