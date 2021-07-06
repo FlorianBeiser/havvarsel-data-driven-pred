@@ -31,19 +31,46 @@ import netCDF4
 import numpy as np
 import pyproj as proj
 import sys
-import os
 import datetime
 import pandas as pd 
 
 import matplotlib.pyplot as plt
 
 class THREDDSImporter:
-    def __init__(self, frost_api_base=None, station_id=None, start_time=None, end_time=None):
-        lon, lat, depth, params, start_time, end_time = self.__parse_args()
+    def __init__(self, start_time=None, end_time=None):
 
-        self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
-        self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+        if start_time is None:
+            lon, lat, depth, params, start_time, end_time = self.__parse_args()
+
+            self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+            self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
  
+            data = {}
+            for param in params:
+                data[param] = self.norkyst_data(param, lon, lat, self.start_time, self.end_time, depth)
+                print(data[param])
+
+            # plots first param
+            fig = plt.figure()
+            plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
+            plt.show()
+            plt.savefig("fig.png")
+
+        else: 
+            self.start_time = start_time
+            self.end_time = end_time
+
+    @staticmethod
+    def daterange(start_date, end_date):
+        # +1 to include end_date 
+        # and +1 in case the time interval is not divisible with 24 hours (to get the last hours into the last day)
+        for i in range(int((end_date - start_date).days + 2)):
+            yield start_date + datetime.timedelta(i)
+
+    def norkyst_filenames(self):
+        """Constructing list with filenames of the individual THREDDS netCDF files 
+        for the relevant time period"""
+
         filenames = []
         print("Filename timestamp based on start_time: " + self.start_time.strftime("%Y%m%d%H"))
         print("Filename timestamp based on end_time: " + self.end_time.strftime("%Y%m%d%H"))
@@ -53,28 +80,8 @@ class THREDDSImporter:
             filenames.append(
                 single_date.strftime("https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.%Y%m%d00.nc"))
 
-        print("Reading following files: " + str(filenames))
-
-        data = {}
-        for param in params:
-            data[param] = self.__norkyst_from_thredds(filenames, param, lon, lat, self.start_time, self.end_time, depth)
-            print(data[param])
-
-        # plots first param
-        fig = plt.figure()
-        plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
-        plt.show()
-        plt.savefig("fig.png")
-
-    @staticmethod
-    def daterange(start_date, end_date):
-        # +1 to include end_date 
-        # and +1 in case the time interval is not divisible with 24 hours (to get the last hours into the last day)
-        for i in range(int((end_date - start_date).days + 2)):
-            yield start_date + datetime.timedelta(i)
-
-    def __norkyst_from_thredds(self, filenames, param, lon, lat, start_time, end_time, depth=None):
-        # Test filenames for validity
+        #NOTE: For some days there do not exist files in the THREDDS catalog.
+        # The list of filenames is cleaned such that all filenames are valid
         clean_filenames = []
         for f in range(len(filenames)):
             try:
@@ -83,10 +90,26 @@ class THREDDSImporter:
             except OSError as err:
                 print("OS error: {0}".format(err))
 
-        print(clean_filenames)
+        print("Reading following files: " + str(clean_filenames))
+        
+        return clean_filenames
+
+
+    def norkyst_data(self, param, lon, lat, start_time=None, end_time=None, depth=None):
+        """Fetches relevant netCDF files from THREDDS 
+        and constructs a timeseries in a data frame"""
+
+        # using member variables if applicable
+        if start_time is None:
+            start_time = self.start_time
+        if end_time is None:
+            end_time = self.end_time
+
+        # Filenames for fetching
+        clean_filenames = self.norkyst_filenames()
 
         # Load multi-file object
-        nc  = netCDF4.MFDataset(clean_filenames)
+        nc = netCDF4.MFDataset(clean_filenames)
 
         # handle projection
         for var in ['polar_stereographic','projection_stere','grid_mapping']:
@@ -143,7 +166,11 @@ class THREDDSImporter:
             data = nc.variables[param][t1:t2,depth_index,y1,x1]
 
             # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param+depth:data})
+            timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
+
+            #NOTE: Since the other data sources explicitly specify the time zone
+            # the tz is manually added to the datetime here
+            timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
 
             return timeseries
         else:
@@ -159,7 +186,12 @@ class THREDDSImporter:
             # Dataframe for return
             timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
 
+            #NOTE: Since the other data sources explicitly specify the time zone
+            # the tz is manually added to the datetime here
+            timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
+
             return timeseries
+
 
     @staticmethod
     def __cftime2datetime(cftimes):

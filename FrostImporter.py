@@ -187,7 +187,7 @@ class FrostImporter:
             id  = df.iloc[2*i]["station_id"]
             latlon = (df.iloc[2*i+1]["coordinates"],df.iloc[2*i]["coordinates"])
             dist  = haversine(latlon_ref,latlon)
-            df_dist = df_dist.append({"station_id":id, "lon":latlon[0], "lat":latlon[1], "dist":dist}, ignore_index=True)
+            df_dist = df_dist.append({"station_id":id, "lat":latlon[0], "lon":latlon[1], "dist":dist}, ignore_index=True)
 
         # Identify closest n stations 
         df_ids = df_dist.nsmallest(n,"dist")
