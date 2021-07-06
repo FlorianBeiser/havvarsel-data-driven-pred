@@ -134,3 +134,5 @@ dmypy.json
 # Ignoring output of script by default
 # Please use "git add -f xxx.csv" to add by hand
 *.csv
+*.png
+log.txt
