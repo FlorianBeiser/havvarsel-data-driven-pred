@@ -1,0 +1,229 @@
+-------------------------------------------
+Starting the construction of an data set...
+-------------------------------------------
+The Havvarsel Frost observation site:
+Trying https://havvarsel-frost.met.no/api/v1/obs/badevann/get?time=2017-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&incobs=true&buoyids=1&parameters=temperature
+  buoyid    parameter       name      lon      lat
+0      1  temperature  Sjøstrand  10.4983  59.7969
+-------------------------------------------
+-------------------------------------------
+Frost element: air_temperature.
+-------------------------------------------
+The closest 4 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=air_temperature
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=air_temperature&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+        dist      lat      lon station_id
+0   7.422671  59.8558  10.4358    SN19710
+1   9.726874  59.8190  10.3300    SN19923
+2  10.864339  59.8923  10.5403    SN19430
+3  13.359785  59.7908  10.2598    SN19940
+-------------------------------------------
+Fetching data for SN19710
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19710&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19710&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19710&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19710&elements=air_temperature
+Postprocessing the fetched data...
+Data is added to the data set
+Fetching data for SN19923
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19923&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19923&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19923&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19923&elements=air_temperature
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+Fetching data for SN19430
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19430&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19430&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19430&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19430&elements=air_temperature
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+Fetching data for SN19940
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19940&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19940&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19940&elements=air_temperature
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19940&elements=air_temperature
+Postprocessing the fetched data...
+Data is added to the data set
+-------------------------------------------
+-------------------------------------------
+Frost element: wind_speed.
+-------------------------------------------
+The closest 3 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=wind_speed
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=wind_speed&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+        dist      lat      lon station_id
+0   9.726874  59.8190  10.3300    SN19923
+1  10.864339  59.8923  10.5403    SN19430
+2  13.359785  59.7908  10.2598    SN19940
+-------------------------------------------
+Fetching data for SN19923
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19923&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19923&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19923&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19923&elements=wind_speed
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+Fetching data for SN19430
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19430&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19430&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19430&elements=wind_speed
+412 Client Error: Precondition Failed for url: https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19430&elements=wind_speed
+Fetching data for SN19940
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19940&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19940&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19940&elements=wind_speed
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19940&elements=wind_speed
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+-------------------------------------------
+Frost element: cloud_area_fraction.
+-------------------------------------------
+The closest 3 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=cloud_area_fraction&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+        dist      lat      lon station_id
+0  20.359879  59.9423  10.7200    SN18700
+1  49.938138  59.3742  10.7980    SN17150
+2  51.923909  59.6247   9.6377    SN28380
+-------------------------------------------
+Fetching data for SN18700
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN18700&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN18700&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN18700&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN18700&elements=cloud_area_fraction
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+Fetching data for SN17150
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN17150&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN17150&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN17150&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN17150&elements=cloud_area_fraction
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+Fetching data for SN28380
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN28380&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN28380&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN28380&elements=cloud_area_fraction
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN28380&elements=cloud_area_fraction
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+-------------------------------------------
+Frost element: mean(solar_irradiance PT1H).
+-------------------------------------------
+The closest 1 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=mean%28solar_irradiance+PT1H%29
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=mean%28solar_irradiance+PT1H%29&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+         dist      lat    lon station_id
+0  293.703228  60.3837  5.332    SN50539
+-------------------------------------------
+Fetching data for SN50539
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN50539&elements=mean%28solar_irradiance+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN50539&elements=mean%28solar_irradiance+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN50539&elements=mean%28solar_irradiance+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN50539&elements=mean%28solar_irradiance+PT1H%29
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+-------------------------------------------
+Frost element: sum(duration_of_sunshine PT1H).
+-------------------------------------------
+The closest 2 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=sum%28duration_of_sunshine+PT1H%29&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+         dist      lat      lon station_id
+0   20.359879  59.9423  10.7200    SN18700
+1  102.509239  60.7002  10.8695    SN11500
+-------------------------------------------
+Fetching data for SN18700
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN18700&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN18700&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN18700&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN18700&elements=sum%28duration_of_sunshine+PT1H%29
+Postprocessing the fetched data...
+Data is added to the data set
+Fetching data for SN11500
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN11500&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN11500&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN11500&elements=sum%28duration_of_sunshine+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN11500&elements=sum%28duration_of_sunshine+PT1H%29
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+-------------------------------------------
+Frost element: mean(relative_humidity PT1H).
+-------------------------------------------
+The closest 2 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=mean%28relative_humidity+PT1H%29&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+        dist      lat      lon station_id
+0  13.359785  59.7908  10.2598    SN19940
+1  22.223369  59.6027  10.4047    SN26950
+-------------------------------------------
+Fetching data for SN19940
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28relative_humidity+PT1H%29
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+Fetching data for SN26950
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN26950&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN26950&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN26950&elements=mean%28relative_humidity+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN26950&elements=mean%28relative_humidity+PT1H%29
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+-------------------------------------------
+Frost element: mean(surface_downwelling_shortwave_flux_in_air PT1H).
+-------------------------------------------
+The closest 1 Frost stations:
+Trying https://frost.met.no/sources/v0.jsonld?validtime=2017-01-01%2F2020-12-31&elements=mean%28surface_downwelling_shortwave_flux_in_air+PT1H%29
+Trying https://frost.met.no/observations/availableTimeSeries/v0.jsonld?elements=mean%28surface_downwelling_shortwave_flux_in_air+PT1H%29&referencetime=2017-01-01T00%3A00%3A00%2F2020-12-31T23%3A59%3A00
+        dist      lat      lon station_id
+0  13.359785  59.7908  10.2598    SN19940
+-------------------------------------------
+Fetching data for SN19940
+Trying https://frost.met.no/observations/v0.csv?referencetime=2017-01-01T00%3A00%3A00Z%2F2017-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28surface_downwelling_shortwave_flux_in_air+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2018-01-01T00%3A00%3A00Z%2F2018-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28surface_downwelling_shortwave_flux_in_air+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2019-01-01T00%3A00%3A00Z%2F2019-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28surface_downwelling_shortwave_flux_in_air+PT1H%29
+Trying https://frost.met.no/observations/v0.csv?referencetime=2020-01-01T00%3A00%3A00Z%2F2020-12-31T23%3A59%3A00Z&sources=SN19940&elements=mean%28surface_downwelling_shortwave_flux_in_air+PT1H%29
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+Fetching data from THREDDS
+Postprocessing the fetched data...
+The time series misses observation(s)...
+Missing observations have been filled with the value from the closest neighbor.
+Data is added to the data set
+-------------------------------------------
+Dataset is constructed and will be saved now...
+Ready!
