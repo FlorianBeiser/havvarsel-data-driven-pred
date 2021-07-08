@@ -2,7 +2,7 @@ requests
 matplotlib
 pandas
 haversine
-pyprop
 pyproj
 sklearn
 xgboost
+tensorflow

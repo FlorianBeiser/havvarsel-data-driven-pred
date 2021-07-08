@@ -6,14 +6,9 @@ The repository provides code to fetch data from different sources (see `DataImpo
 
 ## Requirements and set-up 
 
-This sandbox requires the installation of python3 and some related packages:
+This sandbox requires an installation of python3 and some related packages:
 
-1. For an existing version of python3 this can be ensured with
-```
-pip3 install -r requirements.txt
-```
-
-2. Otherwise using Miniconda, a suitable environment is created by
+Using Miniconda, a suitable environment is created by
 ```
 conda env create -f conda_environment.yml
 conda activate datadriven
