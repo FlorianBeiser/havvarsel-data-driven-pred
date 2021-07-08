@@ -1,3 +1,7 @@
 requests
 matplotlib
 pandas
+haversine
+pyprop
+pyproj
+sklearn
