@@ -13,7 +13,7 @@ The data sources include
 - post-processed weather forecasts ()
 
 Test for the construction of a data set:
-'python DataImporter.py -id 1 -param air_temperature -n 10 -param "air_temperature" -n 2 -S 2019-06-01T00:00 -E 2019-06-302T23:59'
+'python DataImporter.py -id 1 -S 2020-09-01T00:00 -E 2020-09-02T23:59'
 
 """
 
@@ -26,9 +26,10 @@ import pandas as pd
 import HavvarselFrostImporter
 import FrostImporter
 import NorKystImporter
+import PPImporter
 
 class DataImporter:
-    def __init__(self, frost_api_base=None, station_id=None, start_time=None, end_time=None):
+    def __init__(self, station_id=None, start_time=None, end_time=None):
         """ Initialisation of DataImporter Class
         If nothing is specified as argument, command line arguments are expected.
         Otherwise an empty instance of the class is created
@@ -36,34 +37,13 @@ class DataImporter:
 
         # For command line calls the class reads the parameters from argsPars
         if start_time is None:
-            frost_api_base, station_id, params, ns, start_time, end_time = self.__parse_args()
+            station_id, start_time, end_time = self.__parse_args()
 
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
 
-
-            # FIXME: This feature (the selection of frost_api_base) may get obsolete 
-            # keyword "all" triggers workflow to construct a csv file
-            # containing the water_temperature series of the selected station of havvarsel frost
-            # and adds params time series from the n closest frost stations 
-            if frost_api_base == "all":
-                # Check sanity of input
-                assert len(params) == len(ns), "Specified number of parameters does not match the radii"
-                # Construct dataset
-                self.constructDataset(station_id, params, ns)
-
-            else:
-                for ip in range(len(params)):
-                    param = params[ip]
-                    # switch between Frost instances/servers
-                    if "havvarsel" in frost_api_base:
-                        assert len(params)==1, "Havvarsel-Frost only allows the single parameter \"temperature\""
-                        _, data = self.havvarsel_frost(station_id, param, frost_api_base, self.start_time, self.end_time)
-                        data.to_csv("data.csv")
-                    else:
-                        data = self.frost(station_id, param, frost_api_base, self.start_time, self.end_time)
-                        if data is not None:
-                            data.to_csv("data_"+param+".csv")
+            # Construct dataset
+            self.constructDataset(station_id)
 
         
         # Non-command line calls expect start and end_time to initialise a valid instance
@@ -72,7 +52,7 @@ class DataImporter:
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
 
 
-    def constructDataset(self, station_id, params, ns):
+    def constructDataset(self, station_id):
         """ construct a csv file containing the water_temperature series of the selected station of havvarsel frost
         and adds params time series from the n closest frost stations
         """
@@ -89,28 +69,34 @@ class DataImporter:
 
         #########################################################
         # time series from frost
-        frostImporter = FrostImporter.FrostImporter(start_time=self.start_time, end_time=self.end_time)
-        for ip in range(len(params)):
-            param = params[ip]
-            n = int(ns[ip])
-            self.__log("-------------------------------------------")
-            self.__log("Frost element: "+param+".")
-            self.__log("-------------------------------------------")
-            # identifying closest station_id's on frost
-            self.__log("The closest "+str(n)+" Frost stations:")
-            frost_station_ids = frostImporter.location_ids(location, n, param)
-            self.__log("-------------------------------------------")
-            # Fetching data for those ids and add them to data
-            for i in range(len(frost_station_ids)):
-                # NOTE: Per call a maximum of 100.000 observations can be fetched at once
-                # Some time series exceed this limit.
-                # TODO: Fetch data year by year to stay within the limit 
-                self.__log("Fetching data for "+ str(frost_station_ids[i]))
-                timeseries = frostImporter.data(frost_station_ids[i],param)
-                if timeseries is not None:
-                    self.__log("Postprocessing the fetched data...")
-                    data = self.left_join(timeseries,frost_station_ids[i],param,data)
-            self.__log("-------------------------------------------")
+        if False:
+            frost_params = ["air_temperature", "wind_speed", "cloud_area_fraction",\
+                "mean(solar_irradiance PT1H)", "sum(duration_of_sunshine PT1H)", \
+                "mean(relative_humidity PT1H)", "mean(surface_downwelling_shortwave_flux_in_air PT1H)"]
+            frost_ns = [4, 3, 3, 1, 2, 2, 1]
+
+            frostImporter = FrostImporter.FrostImporter(start_time=self.start_time, end_time=self.end_time)
+            for ip in range(len(frost_params)):
+                param = frost_params[ip]
+                n = int(frost_ns[ip])
+                self.__log("-------------------------------------------")
+                self.__log("Frost element: "+param+".")
+                self.__log("-------------------------------------------")
+                # identifying closest station_id's on frost
+                self.__log("The closest "+str(n)+" Frost stations:")
+                frost_station_ids = frostImporter.location_ids(location, n, param)
+                self.__log("-------------------------------------------")
+                # Fetching data for those ids and add them to data
+                for i in range(len(frost_station_ids)):
+                    # NOTE: Per call a maximum of 100.000 observations can be fetched at once
+                    # Some time series exceed this limit.
+                    # TODO: Fetch data year by year to stay within the limit 
+                    self.__log("Fetching data for "+ str(frost_station_ids[i]))
+                    timeseries = frostImporter.data(frost_station_ids[i],param)
+                    if timeseries is not None:
+                        self.__log("Postprocessing the fetched data...")
+                        data = self.left_join(timeseries,frost_station_ids[i],param,data)
+                self.__log("-------------------------------------------")
 
         #########################################################
         # time series from THREDDS norkyst
@@ -119,12 +105,39 @@ class DataImporter:
         timeseries = norkystImporter.norkyst_data("temperature", 
                         float(location["lon"][0]), float(location["lat"][0]), depth=0)
         
+        print(timeseries)
+
         #NOTE: The timezone is manually set for THREDDS observations 
         # (this reduces calculation overhead since otherwise it would be handled as missing data
         # however it would be imputed with the right values)
         self.__log("Postprocessing the fetched data...")
         data = self.left_join(timeseries, "THREDDSnorkyst", "temperature", data)
         self.__log("-------------------------------------------")
+
+        
+        #########################################################
+        # time series from THREDDS post-processed forecast
+        pp_params = ['air_temperature_2m', 'wind_speed_10m']#,\
+        #    'wind_speed_of_gust', 'cloud_area_fraction',\
+        #    'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
+
+        self.__log("Fetching data from THREDDS")
+        ppImporter = PPImporter.PPImporter(self.start_time, self.end_time)
+        timeseries = ppImporter.pp_data(pp_params, float(location["lon"][0]), float(location["lon"][0]), self.start_time, self.end_time)
+
+        #NOTE: The timezone is manually set for THREDDS observations 
+        # (this reduces calculation overhead since otherwise it would be handled as missing data
+        # however it would be imputed with the right values)
+        self.__log("Postprocessing the fetched data...")
+
+        timeseries = timeseries.reset_index()
+        timeseries = timeseries.rename(columns={"referenceTime":"time"})
+        
+        data = data.reset_index()
+        data = pd.merge(data.set_index("time"), timeseries.set_index("time")[pp_params], how="left", on="time")
+
+        self.__log("-------------------------------------------")
+
 
         #########################################################
         # save dataset
@@ -205,17 +218,8 @@ class DataImporter:
     def __parse_args():
         parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser.add_argument(
-            '--fab', required=False, dest='frost_api_base', default='all',
-            help='the Frost API base')
-        parser.add_argument(
             '-id', dest='station_id', required=True,
             help='fetch data for station with given id')
-        parser.add_argument(
-            '-param', required=True, action='append',
-            help='fetch data for parameter')
-        parser.add_argument(
-            '-n', action='append',
-            help='number of closest frost stations to consider')
         parser.add_argument(
             '-S', '--start-time', required=True,
             help='start time in ISO format (YYYY-MM-DDTHH:MM) UTC')
@@ -223,7 +227,7 @@ class DataImporter:
             '-E', '--end-time', required=True,
             help='end time in ISO format (YYYY-MM-DDTHH:MM) UTC')
         res = parser.parse_args(sys.argv[1:])
-        return res.frost_api_base, res.station_id, res.param, res.n, res.start_time, res.end_time
+        return res.station_id, res.start_time, res.end_time
 
 
     def __log(self, msg):

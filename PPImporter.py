@@ -36,13 +36,7 @@ class PPImporter:
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
  
-            data = pd.DataFrame()
-            for param in params:
-                if data.empty:
-                    data = self.pp_data(param, lon, lat, self.start_time, self.end_time)
-                else: 
-                    ts = self.pp_data(param, lon, lat, self.start_time, self.end_time)
-                    data = pd.merge(data.set_index("referenceTime"), ts.set_index("referenceTime")[param], how="outer", on="referenceTime")
+            data = self.pp_data(params, lon, lat, self.start_time, self.end_time)
 
             # plots first param
             print(data)
@@ -91,7 +85,7 @@ class PPImporter:
         return clean_filenames
 
 
-    def pp_data(self, param, lon, lat, start_time=None, end_time=None):
+    def pp_data(self, params, lon, lat, start_time=None, end_time=None):
         """Fetches relevant netCDF files from THREDDS 
         and constructs a timeseries in a data frame"""
 
@@ -145,15 +139,23 @@ class PPImporter:
         cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
         datetimes = self.__cftime2datetime(cftimes)
 
-        # EXTRACT DATA
-        data = nc.variables[param][t1:t2,y,x]
+        timeseries = pd.DataFrame()
+        for param in params:
+            # EXTRACT DATA
+            data = nc.variables[param][t1:t2,y,x]
 
-        # Dataframe for return
-        timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
+            # Dataframe for return
+            new_timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
 
-        #NOTE: Since the other data sources explicitly specify the time zone
-        # the tz is manually added to the datetime here
-        timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
+            #NOTE: Since the other data sources explicitly specify the time zone
+            # the tz is manually added to the datetime here
+            new_timeseries["referenceTime"] = new_timeseries["referenceTime"].dt.tz_localize(tz="UTC") 
+            
+            # Outer joining dataset
+            if timeseries.empty:
+                timeseries = new_timeseries
+            else:
+                timeseries = pd.merge(timeseries.set_index("referenceTime"), new_timeseries.set_index("referenceTime")[param], how="outer", on="referenceTime")
 
         return timeseries
 

@@ -4,7 +4,7 @@
 Fetch observations from Havvarsel Frost (havvarsel-frost.met.no) 
 
 Test havvarsel-frost.met.no (badevann): 
-'python3 HavvarselForstImporter.py -id 5 -S 2019-01-01T00:00 -E 2019-12-31T23:59'
+'python3 HavvarselFrostImporter.py -id 5 -S 2019-01-01T00:00 -E 2019-12-31T23:59'
 
 """
 
