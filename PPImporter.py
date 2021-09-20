@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-"""Extract time series from Norkyst 800 m forecasts on MET THREDDS server (thredds.met.no) 
+"""Extract time series from post-processed forecast on MET THREDDS server (thredds.met.no) 
 
-and do something (for now: print and plot) with them
-
-Hourly resolution (from 2017-02-20T00:00 up to today): https://thredds.met.no/thredds/fou-hi/norkyst800v2.html
+6h resolution (from 2020-01-01T00:00 up to today): https://thredds.met.no/thredds/fou-hi/norkyst800v2.html
 
 Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/norkyst800m.html (NOT SUPPORTED YET!)
 
@@ -16,21 +14,9 @@ Find sea surface elevation (no use of --depth):
 Find first available timestep before given start time and after given end time for temperature at depth 100 m:
 'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:45 -E 2021-04-14T11:15'
 
-TODO:
- - More error handling
- - Tune processing and storing of observational data sets (to suite whatever code that will use the data sets)
- - Nice to have: Make it possible to get multi-level and single-level params in the same fetch
- - (See TODOs in FrostImporter.py)
- - ...
-
 IDEA: 
 Use forecast weather data instead of observation weather data.
-
-The netCDF files for the weather forecast can be found on THREDDS: 
-e.g. "https://thredds.met.no/thredds/dodsC/metpparchive/2018/12/31/met_analysis_1_0km_nordic_20181231T23Z.nc"
-
-for more details see https://thredds.met.no/thredds/metno.html
-and the MET post-processed products/Archive/Operational/
+See the MET post-processed data on https://thredds.met.no/thredds/metno.html > products/Archive/Operational/
 """
 
 import argparse
@@ -48,7 +34,7 @@ class PPImporter:
     def __init__(self, start_time=None, end_time=None):
 
         if start_time is None:
-            lon, lat, depth, params, start_time, end_time = self.__parse_args()
+            lon, lat, params, start_time, end_time = self.__parse_args()
 
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
@@ -58,11 +44,11 @@ class PPImporter:
                 data[param] = self.norkyst_data(param, lon, lat, self.start_time, self.end_time, depth)
                 print(data[param])
 
-            # plots first param
-            fig = plt.figure()
-            plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
-            plt.show()
-            plt.savefig("fig.png")
+            # # plots first param
+            # fig = plt.figure()
+            # plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
+            # plt.show()
+            # plt.savefig("fig.png")
 
         else: 
             self.start_time = start_time
@@ -75,7 +61,7 @@ class PPImporter:
         for i in range(int((end_date - start_date).days + 2)):
             yield start_date + datetime.timedelta(i)
 
-    def norkyst_filenames(self):
+    def pp_filenames(self):
         """Constructing list with filenames of the individual THREDDS netCDF files 
         for the relevant time period"""
 
@@ -86,7 +72,7 @@ class PPImporter:
         # add all days in specified time interval (including the day self.end_time)
         for single_date in self.daterange(self.start_time, self.end_time):
             filenames.append(
-                single_date.strftime("https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.%Y%m%d00.nc"))
+                single_date.strftime("https://thredds.met.no/thredds/dodsC/metpparchive/%Y/%m/%d/met_forecast_1_0km_nordic_%Y%m%dT00Z.nc"))
 
         #NOTE: For some days there do not exist files in the THREDDS catalog.
         # The list of filenames is cleaned such that all filenames are valid
@@ -103,7 +89,7 @@ class PPImporter:
         return clean_filenames
 
 
-    def norkyst_data(self, param, lon, lat, start_time=None, end_time=None, depth=None):
+    def pp_data(self, param, lon, lat, start_time=None, end_time=None):
         """Fetches relevant netCDF files from THREDDS 
         and constructs a timeseries in a data frame"""
 
@@ -114,33 +100,25 @@ class PPImporter:
             end_time = self.end_time
 
         # Filenames for fetching
-        clean_filenames = self.norkyst_filenames()
+        clean_filenames = self.pp_filenames()
 
         # Load multi-file object
         nc = netCDF4.MFDataset(clean_filenames)
 
         # handle projection
-        for var in ['polar_stereographic','projection_stere','grid_mapping']:
-            if var in nc.variables.keys():
-                try:
-                    proj1 = nc.variables[var].proj4
-                except:
-                    proj1 = nc.variables[var].proj4string
-        p1 = proj.Proj(str(proj1))
-        xp1,yp1 = p1(lon,lat)
-        for var in ['latitude','lat']:
-            if var in nc.variables.keys():
-                lat1 = nc.variables[var][:]
-        for var in ['longitude','lon']:
-            if var in nc.variables.keys():
-                lon1 = nc.variables[var][:]
-        xproj1,yproj1 = p1(lon1,lat1)
+        proj_args = nc.variables["projection_lcc"].proj4
+        p = proj.Proj(str(proj_args))
+
+        xp,yp = p(lon,lat)
+        lats = nc.variables["latitude"][:]
+        lons = nc.variables["longitude"][:]
+        xps,yps = p(lons,lats)
 
         # find coordinate of gridpoint to analyze
-        x1=self.__find_nearest_index(xproj1[0,:],xp1)
-        y1=self.__find_nearest_index(yproj1[:,0],yp1)
+        x=self.__find_nearest_index(xps[0,:],xp)
+        y=self.__find_nearest_index(yps[:,0],yp)
 
-        print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
+        print('Coordinates model (x,y= '+str(x)+','+str(y)+'): '+str(lats[y,x])+', '+str(lons[y,x]))
 
         # find correct time indices for start and end of timeseries
         all_times = nc.variables["time"]
@@ -151,54 +129,31 @@ class PPImporter:
         print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
   
         try:
-            t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
+            t1 = netCDF4.date2index(start_time, all_times, select="before")
         except:
             t1 = 0
         try:
-            t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="after")
+            t2 = netCDF4.date2index(end_time, all_times, select="after")
         except:
             t2 = len(all_times[:])
 
-        if depth is not None:
-            # find correct depth index
-            all_depths = nc.variables["depth"][:]
-            depth_index = np.where(all_depths == int(depth))[0][0]
+        # EXTRACT REFERENCE TIMES
+        # the times fetched from Thredds are in the cftime.GregorianDatetime format,
+        # but since pandas does not understand that format we have to cast to datetime by hand
+        cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
+        datetimes = self.__cftime2datetime(cftimes)
 
-            # EXTRACT REFERENCE TIMES
-            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-            # but since pandas does not understand that format we have to cast to datetime by hand
-            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
-            datetimes = self.__cftime2datetime(cftimes)
+        # EXTRACT DATA
+        data = nc.variables[param][t1:t2,y,x]
 
-            # EXTRACT DATA
-            data = nc.variables[param][t1:t2,depth_index,y1,x1]
+        # Dataframe for return
+        timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
 
-            # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
+        #NOTE: Since the other data sources explicitly specify the time zone
+        # the tz is manually added to the datetime here
+        timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
 
-            #NOTE: Since the other data sources explicitly specify the time zone
-            # the tz is manually added to the datetime here
-            timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
-
-            return timeseries
-        else:
-            # EXTRACT REFERENCE TIMES
-            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-            # but since pandas does not understand that format we have to cast to datetime by hand
-            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
-            datetimes = self.__cftime2datetime(cftimes)
-
-            # EXTRACT DATA
-            data = nc.variables[param][t1:t2,y1,x1]
-
-            # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
-
-            #NOTE: Since the other data sources explicitly specify the time zone
-            # the tz is manually added to the datetime here
-            timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
-
-            return timeseries
+        return timeseries
 
 
     @staticmethod
@@ -235,7 +190,7 @@ class PPImporter:
             '-E', '--end-time', required=True,
             help='end time in ISO format (YYYY-MM-DDTHH:MM) UTC')
         res = parser.parse_args(sys.argv[1:])
-        return res.lon, res.lat, res.depth, res.param, res.start_time, res.end_time
+        return res.lon, res.lat, res.param, res.start_time, res.end_time
 
 if __name__ == "__main__":
 
