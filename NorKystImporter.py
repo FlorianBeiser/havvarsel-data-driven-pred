@@ -11,10 +11,10 @@ Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/n
 Test: 
 
 Find sea surface elevation (no use of --depth):
-'python3 THREDDSImporter.py -lon 3 -lat 60 -param zeta -S 2021-04-11T00:00 -E 2021-04-14T23:00'
+'python3 NorKystImporter.py -lon 3 -lat 60 -param zeta -S 2021-04-11T00:00 -E 2021-04-14T23:00'
 
 Find first available timestep before given start time and after given end time for temperature at depth 100 m:
-'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:45 -E 2021-04-14T11:15'
+'python3 NorKystImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:45 -E 2021-04-14T11:15'
 
 TODO:
  - More error handling
@@ -23,14 +23,6 @@ TODO:
  - (See TODOs in FrostImporter.py)
  - ...
 
-IDEA: 
-Use forecast weather data instead of observation weather data.
-
-The netCDF files for the weather forecast can be found on THREDDS: 
-e.g. "https://thredds.met.no/thredds/dodsC/metpparchive/2018/12/31/met_analysis_1_0km_nordic_20181231T23Z.nc"
-
-for more details see https://thredds.met.no/thredds/metno.html
-and the MET post-processed products/Archive/Operational/
 """
 
 import argparse
@@ -40,12 +32,11 @@ import netCDF4
 import numpy as np
 import pyproj as proj
 import sys
-import datetime
 import pandas as pd 
 
 import matplotlib.pyplot as plt
 
-class THREDDSImporter:
+class NorKystImporter:
     def __init__(self, start_time=None, end_time=None):
 
         if start_time is None:
@@ -245,7 +236,7 @@ class THREDDSImporter:
 if __name__ == "__main__":
 
     try:
-        THREDDSImporter()
+        NorKystImporter()
     except SystemExit as e:
         if e.code != 0:
             print('SystemExit(code={}): {}'.format(e.code, format_exc()), file=sys.stderr)

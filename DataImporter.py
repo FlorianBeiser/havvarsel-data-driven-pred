@@ -9,17 +9,12 @@ Constructing dataset and saving as csv
 The data sources include
 - havvarsel-frost (see HavvarselFrostImporter)
 - frost (see FrostImporter)
-- norkyst800 (see THREDDS)
+- norkyst800 (see NorKyst)
+- post-processed weather forecasts ()
 
 Test for the construction of a data set:
 'python DataImporter.py -id 1 -param air_temperature -n 10 -param "air_temperature" -n 2 -S 2019-06-01T00:00 -E 2019-06-302T23:59'
 
-TODO:
- - Tune processing and storing of observational data sets (to suite whatever code that will use the data sets)
- - Prototype simple linear regression
- - Prototype simple ANN (with Tensorflow and Keras?)
- - Prototype simple XGBoost?
- - ...
 """
 
 import argparse
@@ -30,7 +25,7 @@ import pandas as pd
 
 import HavvarselFrostImporter
 import FrostImporter
-import THREDDSImporter
+import NorKystImporter
 
 class DataImporter:
     def __init__(self, frost_api_base=None, station_id=None, start_time=None, end_time=None):
@@ -120,8 +115,8 @@ class DataImporter:
         #########################################################
         # time series from THREDDS norkyst
         self.__log("Fetching data from THREDDS")
-        threddsImporter = THREDDSImporter.THREDDSImporter(self.start_time, self.end_time)
-        timeseries = threddsImporter.norkyst_data("temperature", 
+        norkystImporter = NorKystImporter.NorKystImporter(self.start_time, self.end_time)
+        timeseries = norkystImporter.norkyst_data("temperature", 
                         float(location["lon"][0]), float(location["lat"][0]), depth=0)
         
         #NOTE: The timezone is manually set for THREDDS observations 
