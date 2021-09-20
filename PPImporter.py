@@ -9,10 +9,7 @@ Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/n
 Test: 
 
 Find sea surface elevation (no use of --depth):
-'python3 THREDDSImporter.py -lon 3 -lat 60 -param zeta -S 2021-04-11T00:00 -E 2021-04-14T23:00'
-
-Find first available timestep before given start time and after given end time for temperature at depth 100 m:
-'python3 THREDDSImporter.py -lon 3 -lat 60 -depth 100 -param temperature -S 2021-04-11T00:45 -E 2021-04-14T11:15'
+'python3 PPImporter.py -lon 10.7166638 -lat 59.933329 -param "air_temperature_2m" -param "wind_speed_10m" -S 2021-09-18T00:00 -E 2021-09-19T23:59'
 
 IDEA: 
 Use forecast weather data instead of observation weather data.
@@ -39,16 +36,21 @@ class PPImporter:
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
  
-            data = {}
+            data = pd.DataFrame()
             for param in params:
-                data[param] = self.norkyst_data(param, lon, lat, self.start_time, self.end_time, depth)
-                print(data[param])
+                if data.empty:
+                    data = self.pp_data(param, lon, lat, self.start_time, self.end_time)
+                else: 
+                    ts = self.pp_data(param, lon, lat, self.start_time, self.end_time)
+                    data = pd.merge(data.set_index("referenceTime"), ts.set_index("referenceTime")[param], how="outer", on="referenceTime")
 
-            # # plots first param
-            # fig = plt.figure()
-            # plt.plot(data[params[0]]["referenceTime"],data[params[0]][params[0]+depth])
-            # plt.show()
-            # plt.savefig("fig.png")
+            # plots first param
+            print(data)
+            for param in params:
+                fig = plt.figure()
+                plt.plot(data.reset_index()["referenceTime"],data[param])
+                plt.show()
+                plt.savefig("fig_"+param+".png")
 
         else: 
             self.start_time = start_time
