@@ -35,6 +35,11 @@ class PPImporter:
 
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
             self.end_time = datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+
+            if params is None:
+                params = ['air_temperature_2m', 'wind_speed_10m',\
+                    'wind_speed_of_gust', 'cloud_area_fraction',\
+                    'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
  
             data = self.pp_data(params, lon, lat, self.start_time, self.end_time)
 
@@ -156,7 +161,9 @@ class PPImporter:
                 timeseries = new_timeseries
             else:
                 timeseries = pd.merge(timeseries.set_index("referenceTime"), new_timeseries.set_index("referenceTime")[param], how="outer", on="referenceTime")
+                timeseries = timeseries.reset_index()
 
+        timeseries = timeseries.set_index("referenceTime")
         return timeseries
 
 
@@ -185,7 +192,7 @@ class PPImporter:
             '-lat', dest='lat', required=True,
             help='fetch data for grid point nearest to given latitude coordinate')
         parser.add_argument(
-            '-param', required=True, action='append',
+            '-param', default=None, action='append',
             help='fetch data for parameter')
         parser.add_argument(
             '-S', '--start-time', required=True,

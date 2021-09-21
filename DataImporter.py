@@ -104,8 +104,6 @@ class DataImporter:
         norkystImporter = NorKystImporter.NorKystImporter(self.start_time, self.end_time)
         timeseries = norkystImporter.norkyst_data("temperature", 
                         float(location["lon"][0]), float(location["lat"][0]), depth=0)
-        
-        print(timeseries)
 
         #NOTE: The timezone is manually set for THREDDS observations 
         # (this reduces calculation overhead since otherwise it would be handled as missing data
@@ -117,9 +115,9 @@ class DataImporter:
         
         #########################################################
         # time series from THREDDS post-processed forecast
-        pp_params = ['air_temperature_2m', 'wind_speed_10m']#,\
-        #    'wind_speed_of_gust', 'cloud_area_fraction',\
-        #    'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
+        pp_params = ['air_temperature_2m', 'wind_speed_10m',\
+            'wind_speed_of_gust', 'cloud_area_fraction',\
+            'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
 
         self.__log("Fetching data from THREDDS")
         ppImporter = PPImporter.PPImporter(self.start_time, self.end_time)
