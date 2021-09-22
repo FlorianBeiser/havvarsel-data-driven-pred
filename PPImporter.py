@@ -56,11 +56,15 @@ class PPImporter:
             self.end_time = end_time
 
     @staticmethod
-    def daterange(start_date, end_date):
+    def daterange(start_time, end_time):
         # +1 to include end_date 
         # and +1 in case the time interval is not divisible with 24 hours (to get the last hours into the last day)
-        for i in range(int((end_date - start_date).days + 2)):
-            yield start_date + datetime.timedelta(i)
+        dates = []
+        for d in range(int(((end_time - start_time).days + 2))):
+            for h in range(24):
+                dates.append(start_time + datetime.timedelta(d) + datetime.timedelta(hours=h))
+
+        return dates
 
     def pp_filenames(self):
         """Constructing list with filenames of the individual THREDDS netCDF files 
@@ -72,8 +76,12 @@ class PPImporter:
 
         # add all days in specified time interval (including the day self.end_time)
         for single_date in self.daterange(self.start_time, self.end_time):
-            filenames.append(
-                single_date.strftime("https://thredds.met.no/thredds/dodsC/metpparchive/%Y/%m/%d/met_forecast_1_0km_nordic_%Y%m%dT00Z.nc"))
+            if single_date.year >= 2020:
+                filenames.append(
+                    single_date.strftime("https://thredds.met.no/thredds/dodsC/metpparchive/%Y/%m/%d/met_analysis_1_0km_nordic_%Y%m%dT%HZ.nc"))
+            else:
+                filenames.append(
+                    single_date.strftime("https://thredds.met.no/thredds/dodsC/metpparchivev2/%Y/%m/%d/met_analysis_1_0km_nordic_%Y%m%dT%HZ.nc"))
 
         #NOTE: For some days there do not exist files in the THREDDS catalog.
         # The list of filenames is cleaned such that all filenames are valid
