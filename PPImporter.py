@@ -9,7 +9,7 @@ Dayily averages (from 2012-06-27T12:00): https://thredds.met.no/thredds/fou-hi/n
 Test: 
 
 Find sea surface elevation (no use of --depth):
-'python3 PPImporter.py -lon 10.7166638 -lat 59.933329 -param "air_temperature_2m" -param "wind_speed_10m" -S 2021-09-18T00:00 -E 2021-09-19T23:59'
+'python3 PPImporter.py -lon 10.7166638 -lat 59.933329 -S 2021-09-18T00:00 -E 2021-09-19T23:59'
 
 IDEA: 
 Use forecast weather data instead of observation weather data.
@@ -38,8 +38,7 @@ class PPImporter:
 
             if params is None:
                 params = ['air_temperature_2m', 'wind_speed_10m',\
-                    'wind_speed_of_gust', 'cloud_area_fraction',\
-                    'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
+                    'cloud_area_fraction', 'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
  
             data = self.pp_data(params, lon, lat, self.start_time, self.end_time)
 
