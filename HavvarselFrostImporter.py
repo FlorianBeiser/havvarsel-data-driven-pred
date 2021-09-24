@@ -102,6 +102,7 @@ class HavvarselFrostImporter:
         # To ensure agreement with hourly observations from Frost
         # We floor the times to hours
         df["time"] = df["time"].dt.floor('H')
+        df = df.set_index("time")
 
         return(df_location, df)
        

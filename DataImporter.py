@@ -59,12 +59,21 @@ class DataImporter:
         self.__log("-------------------------------------------")
         self.__log("Starting the construction of an data set...")
         self.__log("-------------------------------------------")
+
+        #########################################################
+        times = pd.date_range(self.start_time, self.end_time, freq="H")
+        times = times.tz_localize("UTC")
+        data = pd.DataFrame(times, columns=["time"])
         
         #########################################################
         # meta data and time series from havvarsel frost
         havvarselFrostImporter = HavvarselFrostImporter.HavvarselFrostImporter(self.start_time, self.end_time)
         self.__log("The Havvarsel Frost observation site:")
-        location, data = havvarselFrostImporter.data(station_id)
+        location, timeseries = havvarselFrostImporter.data(station_id)
+
+        timeseries = timeseries.reset_index()
+        data = pd.merge(data.set_index("time"), timeseries.set_index("time"), how="left", on="time")
+
         self.__log("-------------------------------------------")
 
         #########################################################
@@ -98,6 +107,7 @@ class DataImporter:
                         data = self.left_join(timeseries,frost_station_ids[i],param,data)
                 self.__log("-------------------------------------------")
 
+
         #########################################################
         # time series from THREDDS norkyst
         self.__log("Fetching data from THREDDS")
@@ -105,19 +115,19 @@ class DataImporter:
         timeseries = norkystImporter.norkyst_data("temperature", 
                         float(location["lon"][0]), float(location["lat"][0]), depth=0)
 
-        #NOTE: The timezone is manually set for THREDDS observations 
-        # (this reduces calculation overhead since otherwise it would be handled as missing data
-        # however it would be imputed with the right values)
-        self.__log("Postprocessing the fetched data...")
-        data = self.left_join(timeseries, "THREDDSnorkyst", "temperature", data)
+        timeseries = timeseries.rename(columns={"referenceTime":"time"})
+        timeseries = timeseries.rename(columns={"temperature0":"norkyst_water_temp"})
+        
+        data = data.reset_index()
+        data = pd.merge(data.set_index("time"), timeseries.set_index("time"), how="left", on="time")
+        
         self.__log("-------------------------------------------")
 
-        
+
         #########################################################
         # time series from THREDDS post-processed forecast
         pp_params = ['air_temperature_2m', 'wind_speed_10m',\
-            'wind_speed_of_gust', 'cloud_area_fraction',\
-            'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
+            'cloud_area_fraction', 'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
 
         self.__log("Fetching data from THREDDS")
         ppImporter = PPImporter.PPImporter(self.start_time, self.end_time)
