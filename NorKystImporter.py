@@ -144,6 +144,7 @@ class NorKystImporter:
   
         try:
             t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
+            t1 = max(0,t1)
         except:
             t1 = 0
         try:
