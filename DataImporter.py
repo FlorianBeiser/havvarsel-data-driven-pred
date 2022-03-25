@@ -13,7 +13,7 @@ The data sources include
 - post-processed weather forecasts ()
 
 Test for the construction of a data set:
-'python DataImporter.py -id 1 -S 2020-09-01T00:00 -E 2020-09-02T23:59'
+'python DataImporter.py -id 100 -S 2021-10-10T00:00 -E 2021-10-12T23:59'
 
 """
 

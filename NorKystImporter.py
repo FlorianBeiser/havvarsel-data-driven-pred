@@ -64,8 +64,8 @@ class NorKystImporter:
     def daterange(start_date, end_date):
         # +1 to include end_date 
         # and +1 in case the time interval is not divisible with 24 hours (to get the last hours into the last day)
-        for i in range(int((end_date - start_date).days + 2)):
-            yield start_date + datetime.timedelta(i)
+        for i in range(int((end_date - start_date).days + 1)):
+            yield (start_date + datetime.timedelta(i)).date()
 
     def norkyst_filenames(self):
         """Constructing list with filenames of the individual THREDDS netCDF files 
@@ -95,7 +95,7 @@ class NorKystImporter:
         return clean_filenames
 
 
-    def norkyst_data(self, param, lon, lat, start_time=None, end_time=None, depth=None):
+    def norkyst_data(self, param, lon, lat, start_time=None, end_time=None, depth=0):
         """Fetches relevant netCDF files from THREDDS 
         and constructs a timeseries in a data frame"""
 
@@ -128,9 +128,12 @@ class NorKystImporter:
                 lon1 = nc.variables[var][:]
         xproj1,yproj1 = p1(lon1,lat1)
 
-        # find coordinate of gridpoint to analyze
-        x1=self.__find_nearest_index(xproj1[0,:],xp1)
-        y1=self.__find_nearest_index(yproj1[:,0],yp1)
+        # find coordinate of gridpoint to analyze (only wet cells)
+        h = np.array(nc["h"])
+        land_value = h.min()
+        land_mask = np.where((h!=land_value),0,1)
+        distances = (xproj1-xp1)**2 + (yproj1-yp1)**2 + land_mask*1e12
+        y1, x1 = np.unravel_index(distances.argmin(), distances.shape)
 
         print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
 
@@ -152,46 +155,28 @@ class NorKystImporter:
         except:
             t2 = len(all_times[:])
 
-        if depth is not None:
-            # find correct depth index
-            all_depths = nc.variables["depth"][:]
-            depth_index = np.where(all_depths == int(depth))[0][0]
 
-            # EXTRACT REFERENCE TIMES
-            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-            # but since pandas does not understand that format we have to cast to datetime by hand
-            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
-            datetimes = self.__cftime2datetime(cftimes)
+        # find correct depth index
+        all_depths = nc.variables["depth"][:]
+        depth_index = np.where(all_depths == int(depth))[0][0]
 
-            # EXTRACT DATA
-            data = nc.variables[param][t1:t2,depth_index,y1,x1]
+        # EXTRACT REFERENCE TIMES
+        # the times fetched from Thredds are in the cftime.GregorianDatetime format,
+        # but since pandas does not understand that format we have to cast to datetime by hand
+        cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
+        datetimes = self.__cftime2datetime(cftimes)
 
-            # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
+        # EXTRACT DATA
+        data = nc.variables[param][t1:t2,depth_index,y1,x1]
 
-            #NOTE: Since the other data sources explicitly specify the time zone
-            # the tz is manually added to the datetime here
-            timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
+        # Dataframe for return
+        timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
 
-            return timeseries
-        else:
-            # EXTRACT REFERENCE TIMES
-            # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-            # but since pandas does not understand that format we have to cast to datetime by hand
-            cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
-            datetimes = self.__cftime2datetime(cftimes)
+        #NOTE: Since the other data sources explicitly specify the time zone
+        # the tz is manually added to the datetime here
+        timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
 
-            # EXTRACT DATA
-            data = nc.variables[param][t1:t2,y1,x1]
-
-            # Dataframe for return
-            timeseries = pd.DataFrame({"referenceTime":datetimes, param:data})
-
-            #NOTE: Since the other data sources explicitly specify the time zone
-            # the tz is manually added to the datetime here
-            timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
-
-            return timeseries
+        return timeseries
 
 
     @staticmethod
@@ -201,12 +186,6 @@ class NorKystImporter:
             new_datetime = datetime.datetime(cftimes[t].year, cftimes[t].month, cftimes[t].day, cftimes[t].hour, cftimes[t].minute)
             datetimes.append(new_datetime)
         return datetimes
-
-
-    @staticmethod
-    def __find_nearest_index(array,value):
-        idx = (np.abs(array-value)).argmin()
-        return idx
 
 
     @staticmethod
