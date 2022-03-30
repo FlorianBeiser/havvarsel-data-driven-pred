@@ -1,433 +1,126 @@
-buoyid name lat lon source
-045 Kruseter 59.133 11.528 badevann.no
-92 Riskedalsvatnet 59.158610 6.190680 badetassen.no
-43 Tinnemyra 59.583370 9.293290 badetassen.no
-1-32018 Hallevannet 59.02561 9.90727 yr.no
-122 Åletjern 59.226300 9.534400 badetassen.no
-0-10050 "Arendal Gjestehavn" 58.4597 8.76808 yr.no
-96 Kringstadbukta 62.733716 7.083187 badetassen.no
-2-3137092 Stavern 58.96667 10.08333 yr.no
-1-2361692 Fevikodden 58.36719 8.68601 yr.no
-53 Brønnstadbukta 59.078139 9.717251 badetassen.no
-1-23086 Nevlunghamn 58.96741 9.86748 yr.no
-45 Follsjø 59.673430 9.263430 badetassen.no
-1-2486370 Skjelevika 60.16356 5.68743 yr.no
-007 Kalvøya 59.8815 10.5415 badevann.no
-1-73350 Fjellstrand 59.7952 10.60834 yr.no
-1-197222 Raudsand 62.83702 8.12459 yr.no
-1-72417 Landfalltjernet 59.7697 10.16385 yr.no
-1-2441650 Retiro 62.74133 7.21663 yr.no
-1-2722252 "Nordre Fuglevik" 59.39312 10.65114 yr.no
-1-2212617 Julebauen 58.24364 8.38056 yr.no
-1-2599648 Partan 66.17039 12.33595 yr.no
-1-2209045 Klopptjern 59.75806 10.21111 yr.no
-1-2792349 "Stora Stokkavatnet" 58.96372 5.66996 yr.no
-1-7632 Storesand 58.37606 8.69332 yr.no
-1-7822 Kongshavn 58.48621 8.86344 yr.no
-13 Vaulen 58.926347 5.750357 badetassen.no
-0-10060 Borrestranda 59.3775 10.4688 yr.no
-1-2880661 Holmennokken 59.73821 10.21713 yr.no
-0-918 "Longyearbyen Camping" 78.24933 15.49875 yr.no
-37 "Geitvågen Camping" 67.344900 14.520150 badetassen.no
-56 Raudvigå 58.767560 5.831130 badetassen.no
-1-7716 Groos 58.32855 8.57324 yr.no
-1-201405 Kristiansund 63.11045 7.72795 yr.no
-121 Gåsodden 59.189917 9.539256 badetassen.no
-1-2234501 "Bærum sykehus" 59.89832 10.51211 yr.no
-1-73241 Bondivatnet 59.82356 10.43264 yr.no
-1-2395186 Erdal 60.44264 5.22709 yr.no
-1-117529 Gillundstranda 60.71072 11.1047 yr.no
-1-7668 Vikkilen 58.35224 8.60986 yr.no
-1-73611 Steinbruvann 59.97739 10.88257 yr.no
-15 Godalen 58.953280 5.756500 badetassen.no
-1-2212596 Orehola 58.24782 8.38479 yr.no
-1-169873 Hjelle 61.91569 7.1147 yr.no
-0-10056 Springvannsstemmen 58.24744 8.37392 "Lillesand kommune"
-79 Heistadstranda 59.075175 9.691555 badetassen.no
-93 Sandebukta 59.233080 6.163875 badetassen.no
-1-2847971 Stensbydammen 60.38672 11.19338 yr.no
-46 Landfalltjern 59.769695 10.166689 badetassen.no
-1-239515 Varøya 64.81021 11.34781 yr.no
-1-14936 Buøya 58.50298 8.88927 yr.no
-95 Hjertøya 62.717889 7.169704 badetassen.no
-17 Olavsberget 59.109475 9.709374 badetassen.no
-1-138561 Sogndalsfjøra 61.22883 7.09645 yr.no
-1-2606683 Kyrkjetangen 60.3258 5.29661 yr.no
-1-51113 Sandeid 59.54441 5.86229 yr.no
-80 Røra 59.086304 9.715646 badetassen.no
-0-10028 Kruseter 59.133 11.528 yr.no
-1-73036 Kalvøya 59.88498 10.53804 yr.no
-1-2289425 Fyllinga 59.41532 10.49715 yr.no
-10-1067841 "Lysaker brygge" 59.90964 10.64152 yr.no
-65 Holmennokken 59.738625 10.217581 badetassen.no
-1-2275926 "Slemmestad brygge" 59.78295 10.50096 yr.no
-1-92769 Nordåsvannet 60.31977 5.31005 yr.no
-11-41223 "Overå nyevegen" 62.35944 6.07412 yr.no
-1-2289425 Fyllinga 59.41532 10.49715 "Horten kommune"
-1-60121 Krokstrand 59.56421 10.65149 yr.no
-10 Sjøbadet 63.435770 10.390610 badetassen.no
-20 Møllebukta 58.941010 5.670380 badetassen.no
-114 "Stora Stokkavatnet" 58.960310 5.679755 badetassen.no
-1-2284236 Hallandvik 58.07046 7.74336 yr.no
-1-33351 Ormelet 59.10847 10.41676 yr.no
-1-2292691 Baneheia 58.1533 7.98402 yr.no
-111 Kvitsandvika 63.580230 10.802660 badetassen.no
-1-506202 Stord 59.78082 5.49966 yr.no
-10-971639 Volsdalsberga 62.46971 6.19847 yr.no
-0-10030 Raudvigå 58.76833 5.83219 yr.no
-1-2911 Nesetangen 58.21526 8.33751 yr.no
-127 Bortelidtjønna 58.818906 7.471262 badetassen.no
-90 Nesvik 59.262487 6.159887 badetassen.no
-0-10029 Fastland 60.79788 10.67533 yr.no
-123 Bakkestranda 59.200524 9.601643 badetassen.no
-1-201530 Brattøya 63.06163 7.696 yr.no
-0-10075 "Sandnessjøen havsbad" 65.98932 12.62367 yr.no
-1-73216 Asker 59.83333 10.43721 yr.no
-10-1037840 "Sunde industriområde" 59.83247 5.728 yr.no
-1-7246 Langedalsvann 58.25964 8.40447 yr.no
-0-10027 Årvolldammen 59.94768 10.82012 yr.no
-1-256450 Hemnesberget 66.22489 13.61643 yr.no
-10-988778 Frøystad 58.90079 5.74155 yr.no
-1-116219 Sivesintjern 60.64671 10.64329 yr.no
-1-73167 Hvalstrand 59.84262 10.49061 yr.no
-1-78769 Våge 60.04349 5.52274 yr.no
-1-327650 Myrfjorden 70.95893 24.56898 yr.no
-1-2807053 Rosanes 59.25257 10.42763 yr.no
-52 Mobrua 60.693265 8.924298 badetassen.no
-1-519363 Blålida 61.86028 5.37882 yr.no
-1-62555 Røytjenn 59.68958 11.56981 yr.no
-10-1025131 Fodestølveien 58.46712 6.32624 yr.no
-10-1062400 Husebystranda 59.31052 10.7366 yr.no
-1-2785380 Godalen 58.95591 5.75109 yr.no
-57 Solastranden 58.877579 5.600898 badetassen.no
-0-10078 Stupetårnet 60.79297 11.05994 yr.no
-11-2897 "Nes camping" 59.48274 10.6425 yr.no
-1-313032 Gakorivannet 69.9407 23.20887 yr.no
-81 "Toke Brygge" 59.097700 9.067400 badetassen.no
-0-10007 Ringshaugstranda 59.27652 10.49354 yr.no
-1-256948 Svalvasstjørna 66.04855 13.70214 yr.no
-1-305464 Telegrafbukta 69.63182 18.90584 yr.no
-2-3142938 Øvstabøstølen 58.86667 6.56667 yr.no
-1-2298596 Myrasundet 59.23691 10.45811 yr.no
-0-10003 "Hornnes Camping" 58.55358 7.78433 yr.no
-1-2494375 Sandviga 58.1426 7.98437 yr.no
-1-73361 Bomannsvik 59.79117 10.70544 yr.no
-1-64437 Herøysundet 59.92336 5.78758 yr.no
-1-90197 Bæreia 60.15767 11.96845 yr.no
-1-74298 Ingierstrand 59.81745 10.7479 yr.no
-10-994314 Humlekjærstranda 59.14681 11.0376 yr.no
-10-1062344 Fuglevikstranda 59.32144 10.76092 yr.no
-1-73316 Sjøstrand 59.79751 10.49165 yr.no
-1-14365 Sandnesfjorden 58.69318 9.13089 yr.no
-129 "Sandnessjøen havsbad" 65.989325 12.623672 badetassen.no
-1-2216363 Guttebukta 58.24434 8.38073 yr.no
-132 Paradisbukta 59.019947 9.816376 badetassen.no
-1-2241927 Kastellet 58.71729 9.24001 yr.no
-1-2281666 Nautholmen 58.48137 8.85048 yr.no
-0-10016 "Toke Brygge" 59.0977 9.0674 yr.no
-1-220580 Uttian 63.77636 8.87868 yr.no
-1-126911 Fagernes 60.98586 9.23227 yr.no
-1-139208 Bermålsviki 61.17486 7.45586 yr.no
-1-2744201 Foten 59.17051 10.82811 yr.no
-10-1078327 Nebba 59.13249 10.37943 yr.no
-110 Storvika 63.470910 10.880020 badetassen.no
-1-284878 Fjærvollsanden 68.652 14.43715 yr.no
-1-332552 Klopp 59.25864 10.47528 yr.no
-1-251891 Botnfjorden 66.00586 12.67697 yr.no
-1-18478 Bortelidtjønnæ 58.81778 7.46817 yr.no
-1-77674 Ramsholmen 60.13521 5.42022 yr.no
-131 Våge 60.044350 5.524630 badetassen.no
-0-914 "Fagernes Camping" 60.98127 9.2341 yr.no
-11-28689 "Grindafjord feriesenter" 59.43121 5.48702 yr.no
-85 Valplassen 66.371265 12.359083 badetassen.no
-1-31698 Farris 59.06231 10.00884 yr.no
-10-988926 Mariusbrygga 59.04412 10.04509 yr.no
-2-11817651 Sørenga 59.90454 10.75845 yr.no
-1-46628 Rørestrand 59.39842 10.47995 yr.no
-1-335944 Godvik 60.37791 5.19608 yr.no
-1-73595 Sognsvann 59.97499 10.72891 yr.no
-1-2672042 Gjerdesanden 62.50759 6.06402 yr.no
-1-242443 Kvennvika 65.20848 12.01245 yr.no
-1-36138 Aksdalsvatnet 59.40949 5.4213 yr.no
-0-10023 "Geitvågen Camping" 67.34319 14.51606 yr.no
-1-38191 Sand 59.48468 6.25109 yr.no
-1-2292783 Gunnarsholmen 58.86428 9.41095 yr.no
-1-2366989 Ornesvika 68.44987 17.45367 yr.no
-1-2235353 Kadettangen 59.88786 10.53181 yr.no
-1-2744374 Håbakk 59.05299 5.91515 yr.no
-1-2241921 Flisvika 58.71521 9.23515 yr.no
-0-911 "Namsos Camping" 64.47403 11.58061 yr.no
-1-211265 Kyvannet 63.40385 10.33833 yr.no
-1-2210851 Djupvika 63.45692 10.45278 yr.no
-1-85000 Onsakervika 60.09294 10.1774 yr.no
-11 Munkholmen 63.451380 10.384790 badetassen.no
-106 "Namsos Camping" 64.473850 11.581260 badetassen.no
-1-49042 Kolbjørnviksjøen 59.31973 11.57846 yr.no
-34 "Sota fjordpark" 59.726017 10.256319 badetassen.no
-1-87366 Skedsmokorset 60.00548 11.03278 yr.no
-1-33155 Ulvø 59.20213 10.44953 yr.no
-1-51875 Storemyrtjørna 59.70437 6.34781 yr.no
-1-2808618 Sjøbadet 59.43143 10.65181 yr.no
-1-2387584 Kvalvik 67.30298 14.39952 yr.no
-1-220353 Sørbuøya 63.9757 9.06261 yr.no
-32 Blekktjern 59.725220 10.188970 badetassen.no
-11-19320 Bjønnesstranda 59.0366 10.12337 yr.no
-55 Gunnarsholmen 58.864980 9.411610 badetassen.no
-10-981513 Breivannsveien 59.29078 9.79548 yr.no
-94 Retiro 62.738783 7.216942 badetassen.no
-1-87652 Nordbytjernet 60.15676 11.16533 yr.no
-72 Mobergsvikjo 60.180350 5.464600 badetassen.no
-1-322998 Ifjorden 70.52079 26.92382 yr.no
-60 Osebakkenstranda 59.151534 9.653091 badetassen.no
-1-2212596 Orehola 58.24782 8.38479 "Lillesand kommune"
-133 "Fåholmen badeplass" 59.165627 5.878336 badetassen.no
-1-51996 Rødstjørna 59.65107 6.3187 yr.no
-98 Langangen 59.084650 9.799900 badetassen.no
-1-2348198 Kubukta 58.85627 9.57225 yr.no
-59 "Arendal Gjestehavn" 58.459704 8.768082 badetassen.no
-2-6692627 Njervesanden 58.04555 7.16755 yr.no
-1-73669 Lillestrøm 59.95597 11.04918 yr.no
-1-238019 Sæterneset 64.91284 10.96491 yr.no
-1-2441457 Kringstadbukta 62.73353 7.08214 yr.no
-1-2383208 Ålen 62.84185 11.3013 yr.no
-61 "Myklebust Sjøbad" 58.947280 5.570110 badetassen.no
-128 Volsdalsberga 62.467929 6.198442 badetassen.no
-1-74202 Hvervenbukta 59.83307 10.77133 yr.no
-1-25174 Riskadalsvatnet 59.16005 6.18461 yr.no
-1-2572012 Fonnebostsjøen 60.76008 5.17983 yr.no
-1-7192 Kaldvell 58.27776 8.41995 yr.no
-0-10056 Springvannsstemmen 58.24744 8.37392 yr.no
-1-182653 Eikenosvågen 62.43189 6.39265 yr.no
-1-2351 Bertesbukta 58.14563 8.03149 yr.no
-1-2426 Auglandsbukta 58.11995 7.96522 yr.no
-1-22586 Soppekilen 58.90033 9.46145 yr.no
-1-2841159 "Gamle Telemarksvegen" 58.77407 8.49147 yr.no
-1-212167 Storvika 63.47089 10.88069 yr.no
-18 Badedammen 58.972375 5.749064 badetassen.no
-130 Mosvatnet 59.420210 6.447400 badetassen.no
-66 "Åssiden Elvepark" 59.750571 10.148371 badetassen.no
-54 Banken 59.053031 9.707241 badetassen.no
-1-2358944 Solbergvann 58.46287 8.73535 yr.no
-2-12122966 "Tromsø Harbour" 69.65104 18.96441 yr.no
-101 "Kvalsvik bad og friluftsområde" 59.435160 5.240368 badetassen.no
-1-3011 Brekkestø 58.19146 8.3582 yr.no
-1-2606335 "Nesvik Fk" 59.26359 6.15944 yr.no
-1-92312 Helleneset 60.43513 5.27953 yr.no
-26 Øystese 60.387290 6.205120 badetassen.no
-1-2871569 Gruva 65.92042 13.87317 yr.no
-117 Sandøya 59.059983 9.722417 badetassen.no
-1-137387 Kallestad 61.14905 6.53919 yr.no
-1-2774417 Elleskjæret 59.64412 10.63587 yr.no
-1-2229 Hamresanden 58.19295 8.08316 yr.no
-1-60539 Lyseren 59.68423 11.08338 yr.no
-1-2655088 Sundssanden 63.864 11.29595 yr.no
-1-25564 Vaulalia 59.05692 6.02155 yr.no
-22 Perlå 58.763509 5.854226 badetassen.no
-25 Norheimsund 60.368960 6.148620 badetassen.no
-1-2633008 "Lisle Gama" 59.0458 8.65088 yr.no
-1-285703 Sortland 68.6982 15.41382 yr.no
-0-10009 Mobrua 60.69326 8.9243 yr.no
-0-10038 "Sota fjordpark" 59.72602 10.25562 yr.no
-1-93216 Garnes 60.44458 5.47188 yr.no
-1-22483 Valle 58.93403 9.55247 yr.no
-1-2873416 Batteritomta 59.04944 10.02083 yr.no
-1-46598 Borrevannet 59.41157 10.43162 "Horten kommune"
-1-2297880 Regnbuen 59.11038 10.41892 yr.no
-10-998338 "Kavringen brygge" 59.9067 10.71972 yr.no
-0-10031 "Glesvær Sjøbad" 60.20261 5.04024 yr.no
-1-2576 Grunnevågkilen 58.06244 7.97371 yr.no
-1-251908 Moheim 65.98413 12.50506 yr.no
-1-74019 Ormøya 59.87779 10.75989 yr.no
-5 Aksdalsvatnet 59.416750 5.418333 badetassen.no
-125 Sjøbadet 59.430200 10.651787 badetassen.no
-1-15325 Vaulen 58.92991 5.74186 yr.no
-64 Klopptjern 59.756008 10.204986 badetassen.no
-1-7654 Fevikkilen 58.3661 8.67566 yr.no
-0-10076 "Fåholmen badeplass" 59.16563 5.87834 yr.no
-1-257477 Fiskarneset 66.14373 14.04136 yr.no
-1-506 Eikeland 58.13248 6.68625 yr.no
-10-990121 Huk 59.89534 10.67733 yr.no
-1-50919 Vikebygd 59.59442 5.58749 yr.no
-1-73573 Romstjern 59.98728 10.89106 yr.no
-1-202090 Kolvika 63.129 7.83861 yr.no
-1-2235330 "Hvalstrand bad" 59.84261 10.49096 yr.no
-1-46482 Løvøya 59.44943 10.4462 yr.no
-1-47344 Karlshus 59.35195 10.87226 yr.no
-1-58790 Blekktjernet 59.7236 10.18796 yr.no
-006 Storøyodden 59.887 10.5922 badevann.no
-1-2259900 Møllebukta 58.94087 5.66966 yr.no
-0-10079 Jentebukta 63.12895 7.73349 yr.no
-1-34249 Skjærhalden 59.02526 11.03686 yr.no
-1-2805791 "Halveisholmen, s" 59.01989 9.7863 yr.no
-1-2887920 Sandebukta 59.2335 6.16151 yr.no
-1-336021 Solheimsvatnet 60.36917 5.34644 yr.no
-0-10044 Bystranda 58.1457 8.00773 yr.no
-1-6583 Venneslafjorden 58.27677 7.95978 yr.no
-1-2226455 Badedammen 59.97218 10.88157 yr.no
-1-32611 Sandefjord 59.13133 10.22234 yr.no
-1-2279 Tretjørn 58.17283 8.02645 yr.no
-1-304990 Brensholmen 69.59916 18.04022 yr.no
-42 Bystranda 59.558940 9.247420 badetassen.no
-1-7192 Kaldvell 58.27776 8.41995 "Lillesand kommune"
-1-2767124 Rolfsbukta 59.89294 10.63355 yr.no
-1-72318 Marivannet 59.79961 10.09323 yr.no
-1-270657 Værøy 67.65104 12.72447 yr.no
-2-10111352 "Strand Hotel Fevik" 58.37239 8.66734 yr.no
-1-36105 Eivindsvatnet 59.41752 5.30824 yr.no
-1-46598 Borrevannet 59.41157 10.43162 yr.no
-1-7528 Stølsviga 58.4225 8.77026 yr.no
-1-37961 Foreneset 59.33166 6.09947 yr.no
-116 Rødstjødna 59.651068 6.314661 badetassen.no
-1-72602 Øvresætertjern 59.98276 10.67181 yr.no
-0-10077 Skjærva 63.10164 7.73085 yr.no
-046 Svalerødkilen 59.104 11.221 badevann.no
-1-2361311 "Fevik nedre" 58.37587 8.67645 yr.no
-011 Helleneset 60.4355 5.281 badevann.no
-1-2363492 Sandstavika 70.63373 22.01669 yr.no
-1-100647 Sperillen 60.44007 10.06913 yr.no
-2-3042021 Båtvika 70.91688 -8.7209 yr.no
-1-277221 Skrova 68.16533 14.68865 yr.no
-1-3324 "Vestre Randøya" 58.10402 8.1068 yr.no
-1-77061 Sotra 60.23662 5.07946 yr.no
-99 Bystranda 58.145704 8.007728 badetassen.no
-1-2770251 "Honningsvåg molo" 70.99036 25.96142 yr.no
-1-2592637 Lakseviga 58.0698 7.96362 yr.no
-0-10001 Grønnavigå 58.98805 5.73906 yr.no
-47 Soløyvannet 67.321216 14.615787 badetassen.no
-0-10039 Bystranda 59.55894 9.24742 yr.no
-1-2405489 "Bodø havn" 67.28709 14.37724 yr.no
-1-23010 Åbyfjorden 58.98735 9.68172 yr.no
-1-2254527 Sørenga 59.90317 10.75908 yr.no
-1-2275091 Oddanesand 58.96459 9.85993 yr.no
-1-38472 Mosvatnet 59.41566 6.43536 yr.no
-10-1016996 Jarenstranda 60.36095 10.57222 yr.no
-1-94425 Norheimsund 60.37089 6.14564 yr.no
-1-2310212 Bildøypollen 60.34814 5.10542 yr.no
-1-2285112 Åsestranda 62.46156 6.30433 yr.no
-0-10014 Storøyodden 59.88819 10.59302 yr.no
-1-2289693 Steinsnes 59.40173 10.48536 yr.no
-1-244818 Svarthopen 65.4642 12.21579 yr.no
-109 Sundssanden 63.864130 11.294080 badetassen.no
-1-218470 Kvitsandvika 63.58082 10.80444 yr.no
-1-259028 Aldersundet 66.42564 13.12365 yr.no
-104 "Grindafjord feriesenter" 59.438308 5.481414 badetassen.no
-51 Kråkeskarvet 60.473128 7.075648 badetassen.no
-1-59875 Torkilstranda 59.64914 10.63444 yr.no
-1-33071 Oslofjorden 59.21497 10.63634 yr.no
-11-17685 "Nordre Jarlsberg Brygge" 59.56648 10.26757 yr.no
-100 Sørenga 59.900700 10.749700 badetassen.no
-1-187964 "Ålesund lufthavn, Vigra" 62.55798 6.10384 yr.no
-112 Midtsandtangen 63.433990 10.722190 badetassen.no
-1-177457 Geiranger 62.10186 7.20719 yr.no
-1-33814 Helleskilen 59.17185 10.82682 yr.no
-0-10004 Tinnemyra 59.58337 9.29329 yr.no
-1-35279 Vanninga 59.13093 11.48724 yr.no
-1-2864339 Borre 59.38189 10.45646 yr.no
-1-233728 Setervika 64.32259 13.57374 yr.no
-1-2722243 "Søndre Fuglevik" 59.38342 10.65227 yr.no
-1-85018 Steinsfjorden 60.11993 10.33382 yr.no
-0-10051 "Levanger Bystrand" 63.73902 11.27682 yr.no
-1-73148 Hellviktangen 59.85148 10.68702 yr.no
-1-33316 Engøy 59.12603 10.42063 yr.no
-107 Kyvannet 63.404594 10.342120 badetassen.no
-113 Klovsteinstjødna 59.704630 6.348284 badetassen.no
-89 "Almenningen bybad" 59.409014 5.271909 badetassen.no
-87 Vik 60.466249 7.066029 badetassen.no
-120 Peraneset 60.205852 5.626298 badetassen.no
-1-33396 Havna 59.08527 10.41666 yr.no
-1-46737 Evjesundet 59.35728 10.66616 yr.no
-1-311341 Koppmolneset 69.9012 20.10862 yr.no
-82 "Mule Varde" 59.098752 9.700902 badetassen.no
-1-2788565 "Flaskebekk brygge" 59.86064 10.65299 yr.no
-1-7246 Langedalsvannet 58.25964 8.40447 "Lillesand kommune"
-86 Gakorivannet 69.941330 23.209550 badetassen.no
-1-2831377 Koigen 60.79371 11.05976 yr.no
-1-2231280 Samuelsberg 69.55151 20.53326 yr.no
-5-19428 Høvik 59.8925 10.5777 yr.no
-1-42287 Kvitsund 59.38218 8.51964 yr.no
-0-10046 "Kvalsvik bad og friluftsområde" 59.43516 5.24037 yr.no
-1-72645 Bogstadvannet 59.9718 10.61783 yr.no
-2-9254764 "Quality Resort & Spa Son" 59.51702 10.68416 yr.no
-1-72837 Oslo 59.91273 10.74609 yr.no
-0-10012 "Åssiden Elvepark" 59.75057 10.14837 yr.no
-1-33090 Fjærholmen 59.22394 10.4644 yr.no
-11-40723 "Nedre Bjørset" 62.73814 7.12688 yr.no
-70 Vinnesholmen 60.153710 5.577080 badetassen.no
-1-92416 Bergen 60.39323 5.3245 yr.no
-1-310159 Grøtfjorden 69.77701 18.53977 yr.no
-1-131902 Rokosjøen 60.78754 11.4397 yr.no
-10-1069946 Hulvikveien 59.54571 10.65653 yr.no
-1-37956 Jelsavågen 59.3333 6.03658 yr.no
-44 Svingen 59.557590 9.207190 badetassen.no
-83 Sildevika 59.048677 9.760266 badetassen.no
-1-2536 Oftenes 58.07057 7.76508 yr.no
-118 Telegrafbukta 69.631570 18.905230 badetassen.no
-2-12078216 Asnes 59.09666 10.24102 yr.no
-1-2868413 "Klubben grendahus" 63.75493 8.69643 yr.no
-7 Grønnavigå 58.988380 5.739830 badetassen.no
-5-52310 Modalen 60.8562 5.9733 yr.no
-1-2212678 Ålebekk 58.25768 8.39894 "Lillesand kommune"
-78 Bøkkerkåsa 59.105858 9.647118 badetassen.no
-1-101364 Onsaker 60.34221 10.35617 yr.no
-103 Eivindsvatnet 59.419217 5.300414 badetassen.no
-0-10068 Risbruastranda 59.08039 10.42862 yr.no
-1-32559 Solløkka 59.13977 10.29683 yr.no
-105 "Levanger Bystrand" 63.738680 11.275260 badetassen.no
-24 "Hornnes Camping" 58.553230 7.779950 badetassen.no
-1-2802269 "Mule Varde" 59.09972 9.70041 yr.no
-1-2981 Isefjær 58.18872 8.19718 yr.no
-1-180278 Storrøsta 62.22009 10.97581 yr.no
-1-2556167 Munkholmen 63.45112 10.38271 yr.no
-1-2582315 Åløypet 60.48884 5.08744 yr.no
-1-14206 Sørfjorden 58.72902 9.09949 yr.no
-1-2216249 Kosvigstø 58.21403 8.31551 yr.no
-1-2486262 Vinnesholmen 60.15502 5.57601 yr.no
-49 Ringshaugstranda 59.273930 10.495380 badetassen.no
-1-2259228 Badedammen 58.97219 5.74852 yr.no
-1-2227863 Bauen 59.12446 11.18584 yr.no
-63 Gjerdesanden 62.509230 6.066630 badetassen.no
-1-275998 Ramberg 68.08991 13.22989 yr.no
-1-22612 Hellefjorden 58.89634 9.3781 yr.no
-1-2592724 Paulen 58.08519 8.02283 yr.no
-1-2652263 Skårkleiva 68.9215 17.14157 yr.no
-38 Sjøsanden 58.018192 7.445817 badetassen.no
-1-211104 Sjøbadet 63.43579 10.3909 yr.no
-0-10034 "Almenningen bybad" 59.40901 5.27191 yr.no
-10-1061154 Skjærvaveien 63.10208 7.72438 yr.no
-2-11810972 Solastranden 58.88569 5.60215 yr.no
-1-219921 Bogøya 63.87142 8.5483 yr.no
-1-2039 Banken 58.01717 7.42994 yr.no
-1-2505526 Sponavika 59.77442 5.51559 yr.no
-1-32236 Melsomvik 59.22394 10.33616 yr.no
-0-10013 Kanalparken 58.76896 5.8482 yr.no
-1-196685 Hjelset 62.7805 7.49277 yr.no
-23 Kanalparken 58.769550 5.848330 badetassen.no
-0-10018 Mobergsvikjo 60.18035 5.4646 yr.no
-119 Øvstabøstølen 58.865634 6.568206 badetassen.no
-1-2235910 "Halden brygge" 59.88726 10.63265 yr.no
-1-2283230 Tangenbukta 59.09728 10.25114 yr.no
-1-2216363 Guttebukta 58.24434 8.38073 "Lillesand kommune"
-1-23221 Stavern 58.9983 10.03557 yr.no
-0-10021 "Myklebust Sjøbad" 58.94723 5.57019 yr.no
-004 Hvalstrand 59.841 10.489 badevann.no
-0-10055 "Huk naturiststrand" 59.89647 10.67231 yr.no
-1-2468 Møvik 58.10397 7.97376 yr.no
-1-302064 Melen 69.26926 19.89701 yr.no
-1-2519813 Vik 60.46641 7.06586 yr.no
-1-189316 Hjertøya 62.71595 7.15151 yr.no
-4 Dragavika 59.401295 5.387442 badetassen.no
-1-73195 Spirebukta 59.83374 10.49794 yr.no
-0-10026 Kråkeskarvet 60.47313 7.07565 yr.no
-5-99700 Bjørnøya 74.5033 18.9977 yr.no
-1-73004 Rolfstangen 59.89163 10.63541 yr.no
-0-10025 Sollerudstranda 59.91267 10.64748 yr.no
-1-2283082 Skjellsand 59.05449 10.22827 yr.no
-1-36512 Kopervik 59.28354 5.30671 yr.no
-0-10020 Osebakkenstranda 59.15153 9.65309 yr.no
-115 Nesøyra 59.641387 6.320553 badetassen.no
-10-1029794 Øyavegen 59.26128 5.18574 yr.no
-1-211102 Trondheim 63.43048 10.39506 yr.no
-1-94375 Øystese 60.38668 6.20074 yr.no
-1-2254113 Tjuvholmen 59.90713 10.72218 yr.no
-1-2446090 Astadbukta 62.90113 7.67995 yr.no
-91 Kjelavika 59.169449 6.049386 badetassen.no
+buoyid,name,lat,lon,N_obs,first_obs,last_obs,source
+045,Kruseter,59.133,11.528,1086,2020-06-08,2021-09-23,badevann.no
+92,Riskedalsvatnet,59.15861,6.19068,116,2021-10-06,2021-10-18,badetassen.no
+43,Tinnemyra,59.58337,9.29329,3766,2021-10-06,2022-03-18,badetassen.no
+96,Kringstadbukta,62.733716,7.083187,639,2021-10-06,2022-03-30,badetassen.no
+007,Kalvøya,59.8815,10.5415,3758,2016-06-17,2021-10-18,badevann.no
+1-197222,Raudsand,62.83702,8.12459,24,2021-12-28,2022-03-28,yr.no
+1-2722252,Nordre Fuglevik,59.39312,10.65114,16,2022-01-20,2022-03-24,yr.no
+13,Vaulen,58.926347,5.750357,4033,2021-10-06,2022-03-30,badetassen.no
+37,Geitvågen Camping,67.3449,14.52015,2297,2021-10-06,2022-01-12,badetassen.no
+56,Raudvigå,58.76756,5.83113,995,2021-10-06,2021-11-18,badetassen.no
+1-201405,Kristiansund,63.11045,7.72795,11,2021-11-01,2022-03-23,yr.no
+1-73241,Bondivatnet,59.82356,10.43264,15,2021-10-14,2021-12-04,yr.no
+15,Godalen,58.95328,5.7565,3990,2021-10-06,2022-03-30,badetassen.no
+0-10056,Springvannsstemmen,58.24744,8.37392,583,2022-03-01,2022-03-29,Lillesand kommune
+93,Sandebukta,59.23308,6.163875,607,2021-10-06,2022-03-29,badetassen.no
+46,Landfalltjern,59.769695,10.166689,1077,2021-10-06,2022-03-03,badetassen.no
+95,Hjertøya,62.717889,7.169704,4030,2021-10-06,2022-03-30,badetassen.no
+1-51113,Sandeid,59.54441,5.86229,23,2021-10-05,2022-03-24,yr.no
+65,Holmennokken,59.738625,10.217581,1925,2021-10-06,2022-03-30,badetassen.no
+1-92769,Nordåsvannet,60.31977,5.31005,15,2021-10-09,2022-03-13,yr.no
+10,Sjøbadet,63.43577,10.39061,395,2021-10-25,2021-12-06,badetassen.no
+20,Møllebukta,58.94101,5.67038,3151,2021-10-06,2022-03-29,badetassen.no
+114,Stora Stokkavatnet,58.96031,5.679755,2632,2021-10-06,2022-03-18,badetassen.no
+1-2284236,Hallandvik,58.07046,7.74336,16,2021-10-08,2021-10-26,yr.no
+111,Kvitsandvika,63.58023,10.80266,334,2021-10-06,2022-03-29,badetassen.no
+127,Bortelidtjønna,58.818906,7.471262,43,2021-10-06,2021-10-18,badetassen.no
+90,Nesvik,59.262487,6.159887,281,2021-10-06,2021-10-18,badetassen.no
+52,Mobrua,60.693265,8.924298,186,2021-10-06,2021-10-14,badetassen.no
+57,Solastranden,58.877579,5.600898,3962,2021-10-06,2022-03-30,badetassen.no
+81,Toke Brygge,59.0977,9.0674,24,2021-10-06,2021-10-12,badetassen.no
+0-10007,Ringshaugstranda,59.27652,10.49354,11,2022-03-04,2022-03-29,yr.no
+1-305464,Telegrafbukta,69.63182,18.90584,20,2021-10-08,2022-03-27,yr.no
+1-73316,Sjøstrand,59.79751,10.49165,41,2021-10-17,2022-03-28,yr.no
+129,Sandnessjøen havsbad,65.989325,12.623672,105,2021-10-06,2021-11-04,badetassen.no
+110,Storvika,63.47091,10.88002,564,2021-10-06,2022-03-07,badetassen.no
+1-332552,Klopp,59.25864,10.47528,25,2021-10-05,2022-03-23,yr.no
+1-251891,Botnfjorden,66.00586,12.67697,17,2021-10-06,2022-03-26,yr.no
+131,Våge,60.04435,5.52463,594,2021-10-06,2022-03-30,badetassen.no
+85,Valplassen,66.371265,12.359083,2136,2021-08-11,2022-01-07,badetassen.no
+10-988926,Mariusbrygga,59.04412,10.04509,68,2021-10-04,2022-03-19,yr.no
+1-46628,Rørestrand,59.39842,10.47995,15,2021-11-14,2022-03-14,yr.no
+1-73595,Sognsvann,59.97499,10.72891,42,2021-10-08,2022-03-29,yr.no
+11,Munkholmen,63.45138,10.38479,3982,2021-10-06,2022-03-30,badetassen.no
+106,Namsos Camping,64.47385,11.58126,112,2021-10-06,2021-11-04,badetassen.no
+34,Sota fjordpark,59.726017,10.256319,1326,2021-10-06,2022-03-30,badetassen.no
+1-2387584,Kvalvik,67.30298,14.39952,20,2021-10-10,2022-03-12,yr.no
+32,Blekktjern,59.72522,10.18897,1349,2021-10-06,2022-03-30,badetassen.no
+11-19320,Bjønnesstranda,59.0366,10.12337,59,2021-10-07,2022-03-29,yr.no
+55,Gunnarsholmen,58.86498,9.41161,614,2021-10-06,2021-11-01,badetassen.no
+94,Retiro,62.738783,7.216942,667,2021-10-06,2022-03-30,badetassen.no
+72,Mobergsvikjo,60.18035,5.4646,3897,2021-10-06,2022-03-30,badetassen.no
+60,Osebakkenstranda,59.151534,9.653091,3883,2021-10-06,2022-03-30,badetassen.no
+133,Fåholmen badeplass,59.165627,5.878336,673,2021-10-06,2022-03-30,badetassen.no
+59,Arendal Gjestehavn,58.459704,8.768082,3058,2021-10-06,2022-03-30,badetassen.no
+61,Myklebust Sjøbad,58.94728,5.57011,3968,2021-10-06,2022-03-30,badetassen.no
+128,Volsdalsberga,62.467929,6.198442,546,2021-10-06,2022-03-29,badetassen.no
+1-74202,Hvervenbukta,59.83307,10.77133,28,2021-10-11,2022-03-28,yr.no
+0-10056,Springvannsstemmen,58.24744,8.37392,583,2022-03-01,2022-03-29,yr.no
+1-2426,Auglandsbukta,58.11995,7.96522,12,2021-10-07,2022-03-15,yr.no
+18,Badedammen,58.972375,5.749064,1334,2021-10-06,2021-12-02,badetassen.no
+130,Mosvatnet,59.42021,6.4474,764,2021-10-06,2021-11-29,badetassen.no
+66,Åssiden Elvepark,59.750571,10.148371,3753,2021-10-06,2022-03-30,badetassen.no
+1-2358944,Solbergvann,58.46287,8.73535,25,2021-10-08,2021-12-03,yr.no
+101,Kvalsvik bad og friluftsområde,59.43516,5.240368,95,2021-10-06,2021-11-04,badetassen.no
+1-3011,Brekkestø,58.19146,8.3582,14,2021-10-06,2022-03-23,yr.no
+26,Øystese,60.38729,6.20512,216,2021-10-06,2021-12-03,badetassen.no
+25,Norheimsund,60.36896,6.14862,199,2021-10-06,2021-12-06,badetassen.no
+1-46598,Borrevannet,59.41157,10.43162,105,2022-03-01,2022-03-29,Horten kommune
+10-998338,Kavringen brygge,59.9067,10.71972,128,2021-10-28,2022-03-29,yr.no
+1-2576,Grunnevågkilen,58.06244,7.97371,10,2021-10-09,2022-03-19,yr.no
+1-74019,Ormøya,59.87779,10.75989,10,2022-01-03,2022-03-08,yr.no
+5,Aksdalsvatnet,59.41675,5.418333,626,2021-10-06,2021-11-04,badetassen.no
+125,Sjøbadet,59.4302,10.651787,449,2021-10-06,2022-03-29,badetassen.no
+64,Klopptjern,59.756008,10.204986,3665,2021-10-06,2022-03-30,badetassen.no
+10-990121,Huk,59.89534,10.67733,11,2021-10-15,2022-03-11,yr.no
+006,Storøyodden,59.887,10.5922,3552,2016-06-07,2021-10-18,badevann.no
+0-10044,Bystranda,58.1457,8.00773,114,2021-10-06,2022-03-29,yr.no
+1-304990,Brensholmen,69.59916,18.04022,14,2021-10-08,2022-02-23,yr.no
+42,Bystranda,59.55894,9.24742,3732,2021-10-18,2022-03-30,badetassen.no
+1-46598,Borrevannet,59.41157,10.43162,105,2022-03-01,2022-03-29,yr.no
+1-7528,Stølsviga,58.4225,8.77026,40,2021-12-12,2022-03-25,yr.no
+116,Rødstjødna,59.651068,6.314661,35,2021-10-06,2021-10-15,badetassen.no
+0-10077,Skjærva,63.10164,7.73085,13,2021-11-04,2022-03-25,yr.no
+046,Svalerødkilen,59.104,11.221,1098,2020-05-19,2021-09-21,badevann.no
+011,Helleneset,60.4355,5.281,4724,2019-06-11,2022-03-30,badevann.no
+2-3042021,Båtvika,70.91688,-8.7209,67,2021-11-15,2022-03-27,yr.no
+1-277221,Skrova,68.16533,14.68865,49,2021-10-07,2022-03-24,yr.no
+99,Bystranda,58.145704,8.007728,41,2021-08-31,2021-10-18,badetassen.no
+003,Sjøstrand,59.7969,10.4983,2327,2016-05-24,2020-09-15,badevann.no
+1-2592637,Lakseviga,58.0698,7.96362,23,2021-10-07,2022-03-26,yr.no
+1-2275091,Oddanesand,58.96459,9.85993,14,2021-10-08,2022-03-25,yr.no
+1-2289693,Steinsnes,59.40173,10.48536,62,2021-10-07,2022-03-27,yr.no
+109,Sundssanden,63.86413,11.29408,605,2021-10-06,2022-03-29,badetassen.no
+104,Grindafjord feriesenter,59.438308,5.481414,89,2021-10-06,2021-11-01,badetassen.no
+51,Kråkeskarvet,60.473128,7.075648,101,2021-10-06,2021-11-08,badetassen.no
+11-17685,Nordre Jarlsberg Brygge,59.56648,10.26757,133,2021-10-08,2022-03-29,yr.no
+100,Sørenga,59.9007,10.7497,2970,2021-10-06,2022-03-29,badetassen.no
+113,Klovsteinstjødna,59.70463,6.348284,37,2021-10-06,2021-10-15,badetassen.no
+89,Almenningen bybad,59.409014,5.271909,104,2021-10-06,2021-11-04,badetassen.no
+87,Vik,60.466249,7.066029,272,2021-10-06,2022-02-28,badetassen.no
+120,Peraneset,60.205852,5.626298,43,2021-10-06,2021-10-08,badetassen.no
+1-2788565,Flaskebekk brygge,59.86064,10.65299,13,2021-11-04,2022-02-28,yr.no
+86,Gakorivannet,69.94133,23.20955,119,2021-10-06,2021-11-08,badetassen.no
+1-2831377,Koigen,60.79371,11.05976,37,2021-10-06,2022-03-23,yr.no
+0-10046,Kvalsvik bad og friluftsområde,59.43516,5.24037,15,2021-10-04,2022-03-29,yr.no
+2-9254764,Quality Resort & Spa Son,59.51702,10.68416,16,2021-12-19,2022-03-27,yr.no
+1-33090,Fjærholmen,59.22394,10.4644,12,2021-12-19,2022-03-27,yr.no
+70,Vinnesholmen,60.15371,5.57708,641,2021-10-06,2022-03-30,badetassen.no
+118,Telegrafbukta,69.63157,18.90523,314,2021-10-01,2022-01-11,badetassen.no
+7,Grønnavigå,58.98838,5.73983,3950,2021-10-06,2022-03-30,badetassen.no
+103,Eivindsvatnet,59.419217,5.300414,210,2021-10-06,2021-11-29,badetassen.no
+105,Levanger Bystrand,63.73868,11.27526,679,2021-10-06,2022-03-30,badetassen.no
+24,Hornnes Camping,58.55323,7.77995,175,2021-10-06,2021-10-18,badetassen.no
+63,Gjerdesanden,62.50923,6.06663,2827,2021-10-06,2022-03-02,badetassen.no
+1-275998,Ramberg,68.08991,13.22989,23,2021-10-10,2022-03-29,yr.no
+38,Sjøsanden,58.018192,7.445817,25,2021-09-26,2021-10-18,badetassen.no
+1-2039,Banken,58.01717,7.42994,12,2021-12-14,2022-03-25,yr.no
+23,Kanalparken,58.76955,5.84833,724,2021-10-06,2021-11-08,badetassen.no
+119,Øvstabøstølen,58.865634,6.568206,1228,2021-10-06,2021-11-27,badetassen.no
+004,Hvalstrand,59.841,10.489,3016,2016-05-24,2021-10-13,badevann.no
+4,Dragavika,59.401295,5.387442,11294,2019-05-21,2021-09-12,badetassen.no
+0-10025,Sollerudstranda,59.91267,10.64748,103,2021-10-08,2022-03-30,yr.no
+115,Nesøyra,59.641387,6.320553,13,2021-09-29,2021-10-22,badetassen.no
+1-2254113,Tjuvholmen,59.90713,10.72218,150,2021-10-08,2022-03-29,yr.no
+1-2446090,Astadbukta,62.90113,7.67995,29,2021-10-14,2022-03-13,yr.no
