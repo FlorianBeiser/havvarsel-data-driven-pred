@@ -60,10 +60,11 @@ class HavvarselFrostImporter:
         endpoint = frost_api_base + "/api/v1/obs/badevann/get"
 
         payload = {'time': start_time.isoformat() + "Z/" + end_time.isoformat() + "Z", 
-                    'incobs':'true', 'buoyids': station_id, 'parameters': param}
+                    'incobs':'true', 'buoyids': station_id, 'parameter': param}
+        payload_str = "&".join("%s=%s" % (k,v) for k,v in payload.items())
 
         try:
-            r = requests.get(endpoint, params=payload)
+            r = requests.get(endpoint, params=payload_str)
             self.__log("Trying " + r.url)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:

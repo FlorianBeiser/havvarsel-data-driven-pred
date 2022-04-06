@@ -138,6 +138,7 @@ class PPImporter:
   
         try:
             t1 = netCDF4.date2index(start_time, all_times, select="before")
+            t1 = max(0,t1)
         except:
             t1 = 0
         try:
