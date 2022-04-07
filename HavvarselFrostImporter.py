@@ -103,7 +103,7 @@ class HavvarselFrostImporter:
         # NOTE: some observations are 1min delayed. 
         # To ensure agreement with hourly observations from Frost
         # We floor the times to hours
-        df = df.resample("H", on="time").mean()
+        df = df.resample("H", on="time").agg({"water_temp":"first"})
 
         return(df_location, df)
        
