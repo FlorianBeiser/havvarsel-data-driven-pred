@@ -72,8 +72,6 @@ class NorKystImporter:
         for the relevant time period"""
 
         filenames = []
-        print("Filename timestamp based on start_time: " + self.start_time.strftime("%Y%m%d%H"))
-        print("Filename timestamp based on end_time: " + self.end_time.strftime("%Y%m%d%H"))
 
         # add all days in specified time interval (including the day self.end_time)
         for single_date in self.daterange(self.start_time, self.end_time):
@@ -90,8 +88,6 @@ class NorKystImporter:
             except OSError as err:
                 print("OS error: {0}".format(err))
 
-        print("Reading following files: " + str(clean_filenames))
-        
         return clean_filenames
 
 
@@ -108,8 +104,10 @@ class NorKystImporter:
         # Filenames for fetching
         clean_filenames = self.norkyst_filenames()
 
-        # Load multi-file object
-        nc = netCDF4.MFDataset(clean_filenames)
+        # Load first object
+        # and use it to specify the coordinates
+        nc = netCDF4.Dataset(clean_filenames[0])
+        print("Processing ", clean_filenames[0])
 
         # handle projection
         for var in ['polar_stereographic','projection_stere','grid_mapping']:
@@ -138,23 +136,13 @@ class NorKystImporter:
         print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
 
         # find correct time indices for start and end of timeseries
-        all_times = nc.variables["time"]
-        
-        first = netCDF4.num2date(all_times[0],all_times.units)
-        last = netCDF4.num2date(all_times[-1],all_times.units)
-        print("First available time: " + first.strftime("%Y-%m-%dT%H:%M"))
-        print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
-  
+        times = nc.variables["time"]
+
         try:
-            t1 = netCDF4.date2index(start_time, all_times, calendar=all_times.calendar, select="before")
+            t1 = netCDF4.date2index(start_time, times, calendar=times.calendar, select="before")
             t1 = max(0,t1)
         except:
             t1 = 0
-        try:
-            t2 = netCDF4.date2index(end_time, all_times, calendar=all_times.calendar, select="after")
-        except:
-            t2 = len(all_times[:])
-
 
         # find correct depth index
         all_depths = nc.variables["depth"][:]
@@ -163,14 +151,41 @@ class NorKystImporter:
         # EXTRACT REFERENCE TIMES
         # the times fetched from Thredds are in the cftime.GregorianDatetime format,
         # but since pandas does not understand that format we have to cast to datetime by hand
-        cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
+        cftimes = netCDF4.num2date(nc.variables["time"][t1:], times.units)
         datetimes = self.__cftime2datetime(cftimes)
 
-        # EXTRACT DATA
-        data = nc.variables[param][t1:t2,depth_index,y1,x1]
+        # FIRST DATA
+        data = nc.variables[param][t1:,depth_index,y1,x1]
 
         # Dataframe for return
         timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
+
+        # LOOP OVER EACH FILE
+        for i in range(1,len(clean_filenames)-1):
+            nc = netCDF4.Dataset(clean_filenames[i])
+            print("Processing ", clean_filenames[i])
+            cftimes = netCDF4.num2date(nc.variables["time"][:], times.units)
+            datetimes = self.__cftime2datetime(cftimes)
+            data = nc.variables[param][:,depth_index,y1,x1]
+            
+            new_timeseries = pd.DataFrame({"referenceTime":datetimes, "temperature"+str(depth):data})
+            timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
+
+        # LAST FILE
+        nc = netCDF4.Dataset(clean_filenames[-1])
+        print("Processing ", clean_filenames[-1])
+        times = nc.variables["time"]
+        try:
+            t2 = netCDF4.date2index(end_time, times, calendar=times.calendar, select="after")
+        except:
+            t2 = len(times[:])
+        cftimes = netCDF4.num2date(nc.variables["time"][:t2], times.units)
+        datetimes = self.__cftime2datetime(cftimes)
+        data = nc.variables[param][:t2,depth_index,y1,x1]
+
+        new_timeseries = pd.DataFrame({"referenceTime":datetimes, "temperature"+str(depth):data})
+        timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
+
 
         #NOTE: Since the other data sources explicitly specify the time zone
         # the tz is manually added to the datetime here

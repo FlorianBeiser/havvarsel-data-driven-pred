@@ -18,6 +18,7 @@ See the MET post-processed data on https://thredds.met.no/thredds/metno.html > p
 
 import argparse
 import datetime
+from imghdr import tests
 from traceback import format_exc
 import netCDF4
 import numpy as np
@@ -59,7 +60,7 @@ class PPImporter:
         # +1 to include end_date 
         # and +1 in case the time interval is not divisible with 24 hours (to get the last hours into the last day)
         dates = []
-        for d in range(int(((end_time - start_time).days + 2))):
+        for d in range(int(((end_time - start_time).days + 1))):
             for h in range(24):
                 dates.append(start_time + datetime.timedelta(d) + datetime.timedelta(hours=h))
 
@@ -82,19 +83,17 @@ class PPImporter:
                 filenames.append(
                     single_date.strftime("https://thredds.met.no/thredds/dodsC/metpparchivev2/%Y/%m/%d/met_analysis_1_0km_nordic_%Y%m%dT%HZ.nc"))
 
-        #NOTE: For some days there do not exist files in the THREDDS catalog.
-        # The list of filenames is cleaned such that all filenames are valid
-        clean_filenames = []
-        for f in range(len(filenames)):
-            try:
-                nc_test = netCDF4.Dataset(filenames[f])
-                clean_filenames.append(filenames[f])
-            except OSError as err:
-                print("OS error: {0}".format(err))
+        # Only assuring that the first listed filename is valid 
+        # (Later invalid filenames are gonna be detected later)
+        testing = True
+        while testing:
+            try: 
+                nc = netCDF4.Dataset(filenames[0])
+                testing = False
+            except:
+                filenames.pop(0)
 
-        print("Reading following files: " + str(clean_filenames))
-        
-        return clean_filenames
+        return filenames
 
 
     def pp_data(self, params, lon, lat, start_time=None, end_time=None):
@@ -108,10 +107,11 @@ class PPImporter:
             end_time = self.end_time
 
         # Filenames for fetching
-        clean_filenames = self.pp_filenames()
+        filenames = self.pp_filenames()
 
         # Load multi-file object
-        nc = netCDF4.MFDataset(clean_filenames)
+        nc = netCDF4.Dataset(filenames[0])
+        print("Processing", filenames[0])
 
         # handle projection
         proj_args = nc.variables["projection_lcc"].proj4
@@ -128,28 +128,46 @@ class PPImporter:
 
         print('Coordinates model (x,y= '+str(x)+','+str(y)+'): '+str(lats[y,x])+', '+str(lons[y,x]))
 
-        # find correct time indices for start and end of timeseries
-        all_times = nc.variables["time"]
-        
-        first = netCDF4.num2date(all_times[0],all_times.units)
-        last = netCDF4.num2date(all_times[-1],all_times.units)
-        print("First available time: " + first.strftime("%Y-%m-%dT%H:%M"))
-        print("Last available time: " + last.strftime("%Y-%m-%dT%H:%M"))
-  
+        # DATA FROM FIRST FILE
+        times = nc.variables["time"]
         try:
-            t1 = netCDF4.date2index(start_time, all_times, select="before")
+            t1 = netCDF4.date2index(start_time, times, select="before")
             t1 = max(0,t1)
         except:
             t1 = 0
-        try:
-            t2 = netCDF4.date2index(end_time, all_times, select="after")
-        except:
-            t2 = len(all_times[:])
 
-        # EXTRACT REFERENCE TIMES
-        # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-        # but since pandas does not understand that format we have to cast to datetime by hand
-        cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], all_times.units)
+        timeseries = self.data1file(filenames[0],y,x,params,t1=t1)
+        
+        # LOOP OVER DATA FROM EACH MIDDLE FILE
+        for i in range(1,len(filenames)-1):
+            try:
+                middle_timeseries = self.data1file(filenames[i],y,x,params)
+                timeseries = pd.concat([timeseries,middle_timeseries], ignore_index=True)
+            except:
+                pass
+
+        # DATA FROM LAST FILE
+        try: 
+            nc = netCDF4.Dataset(filenames[-1])
+            times = nc.variables["time"] 
+            try:
+                t2 = netCDF4.date2index(end_time, times, select="after")
+            except:
+                t2 = len(times[:])
+            last_timeseries = self.data1file(filenames[-1],y,x,params,t2=t2)
+            timeseries = pd.concat([timeseries,last_timeseries], ignore_index=True)
+        except:
+            pass
+
+        timeseries = timeseries.set_index("referenceTime")
+
+        return timeseries
+
+
+    def data1file(self,filename,y,x,params,t1=0,t2=None):
+        nc = netCDF4.Dataset(filename)
+        print("Processing ", filename)
+        cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], nc.variables["time"].units)
         datetimes = self.__cftime2datetime(cftimes)
 
         timeseries = pd.DataFrame()
@@ -171,7 +189,6 @@ class PPImporter:
                 timeseries = pd.merge(timeseries.set_index("referenceTime"), new_timeseries.set_index("referenceTime")[param], how="outer", on="referenceTime")
                 timeseries = timeseries.reset_index()
 
-        timeseries = timeseries.set_index("referenceTime")
         return timeseries
 
 
