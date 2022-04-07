@@ -80,16 +80,16 @@ class NorKystImporter:
                 single_date.strftime("https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.%Y%m%d00.nc"))
 
         #NOTE: For some days there do not exist files in the THREDDS catalog.
-        # The list of filenames is cleaned such that all filenames are valid
-        clean_filenames = []
-        for f in range(len(filenames)):
-            try:
-                nc_test = netCDF4.Dataset(filenames[f])
-                clean_filenames.append(filenames[f])
-            except OSError as err:
-                print("OS error: {0}".format(err))
+        # The list of filenames is cleaned such that the first filename is valid
+        testing = True
+        while testing:
+            try: 
+                nc = netCDF4.Dataset(filenames[0])
+                testing = False
+            except:
+                filenames.pop(0)
 
-        return clean_filenames
+        return filenames
 
 
     def norkyst_data(self, param, lon, lat, start_time=None, end_time=None, depth=0):
@@ -103,13 +103,12 @@ class NorKystImporter:
             end_time = self.end_time
 
         # Filenames for fetching
-        clean_filenames = self.norkyst_filenames()
+        filenames = self.norkyst_filenames()
 
         # Load first object
         # and use it to specify the coordinates
-        nc = netCDF4.Dataset(clean_filenames[0])
+        nc = netCDF4.Dataset(filenames[0])
         print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
-        print("Processing ", clean_filenames[0])
 
         # handle projection
         for var in ['polar_stereographic','projection_stere','grid_mapping']:
@@ -137,63 +136,63 @@ class NorKystImporter:
 
         print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
 
+        # find correct depth index
+        all_depths = nc.variables["depth"][:]
+        depth_index = np.where(all_depths == int(depth))[0][0]
+
         # find correct time indices for start and end of timeseries
         times = nc.variables["time"]
-
         try:
             t1 = netCDF4.date2index(start_time, times, calendar=times.calendar, select="before")
             t1 = max(0,t1)
         except:
             t1 = 0
-
-        # find correct depth index
-        all_depths = nc.variables["depth"][:]
-        depth_index = np.where(all_depths == int(depth))[0][0]
-
-        # EXTRACT REFERENCE TIMES
-        # the times fetched from Thredds are in the cftime.GregorianDatetime format,
-        # but since pandas does not understand that format we have to cast to datetime by hand
-        cftimes = netCDF4.num2date(nc.variables["time"][t1:], times.units)
-        datetimes = self.__cftime2datetime(cftimes)
-
-        # FIRST DATA
-        data = nc.variables[param][t1:,depth_index,y1,x1]
-
-        # Dataframe for return
-        timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
+        
+        # FIRST FILE
+        timeseries = self.data1file(filenames[0],y1,x1,param,depth,depth_index,t1=t1)
 
         # LOOP OVER EACH FILE
-        for i in range(1,len(clean_filenames)-1):
-            nc = netCDF4.Dataset(clean_filenames[i])
-            print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
-            print("Processing ", clean_filenames[i])
-            cftimes = netCDF4.num2date(nc.variables["time"][:], times.units)
-            datetimes = self.__cftime2datetime(cftimes)
-            data = nc.variables[param][:,depth_index,y1,x1]
-            
-            new_timeseries = pd.DataFrame({"referenceTime":datetimes, "temperature"+str(depth):data})
-            timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
+        for i in range(1,len(filenames)-1):
+            try:
+                new_timeseries = self.data1file(filenames[i],y1,x1,param,depth,depth_index)
+                timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
+            except:
+                pass
 
         # LAST FILE
-        nc = netCDF4.Dataset(clean_filenames[-1])
-        print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
-        print("Processing ", clean_filenames[-1])
-        times = nc.variables["time"]
         try:
-            t2 = netCDF4.date2index(end_time, times, calendar=times.calendar, select="after")
+            nc = netCDF4.Dataset(filenames[-1])
+            times = nc.variables["time"]
+            try:
+                t2 = netCDF4.date2index(end_time, times, calendar=times.calendar, select="after")
+            except:
+                t2 = len(times[:])
+
+            new_timeseries = self.data1file(filenames[-1],y1,x1,param,depth,depth_index,t2=t2)
+            timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
         except:
-            t2 = len(times[:])
-        cftimes = netCDF4.num2date(nc.variables["time"][:t2], times.units)
-        datetimes = self.__cftime2datetime(cftimes)
-        data = nc.variables[param][:t2,depth_index,y1,x1]
-
-        new_timeseries = pd.DataFrame({"referenceTime":datetimes, "temperature"+str(depth):data})
-        timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
-
+            pass
 
         #NOTE: Since the other data sources explicitly specify the time zone
         # the tz is manually added to the datetime here
         timeseries["referenceTime"] = timeseries["referenceTime"].dt.tz_localize(tz="UTC")         
+
+        return timeseries
+
+    def data1file(self,filename,y1,x1,param,depth,depth_index,t1=0,t2=None):
+        nc = netCDF4.Dataset(filename)
+        print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
+        print("Processing ", filename)
+        # EXTRACT REFERENCE TIMES
+        # the times fetched from Thredds are in the cftime.GregorianDatetime format,
+        # but since pandas does not understand that format we have to cast to datetime by hand
+        cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], nc.variables["time"].units)
+        datetimes = self.__cftime2datetime(cftimes)
+
+        # FIRST DATA
+        data = nc.variables[param][t1:t2,depth_index,y1,x1]
+        # Dataframe for return
+        timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
 
         return timeseries
 

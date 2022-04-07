@@ -74,12 +74,11 @@ class DataImporter:
         timeseries = timeseries.reset_index()
         data = pd.merge(data.set_index("time"), timeseries.set_index("time"), how="left", on="time")
 
-        self.__log("-------------------------------------------")
-
         if True:
             self.__log("The data fetching is restricted to the range when swimming temperatures are available")
             self.start_time = data.index[0].to_pydatetime().replace(tzinfo=None)
             self.end_time = data.index[-1].to_pydatetime().replace(tzinfo=None)
+        self.__log("-------------------------------------------")
 
         #########################################################
         # time series from frost
