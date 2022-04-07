@@ -76,6 +76,11 @@ class DataImporter:
 
         self.__log("-------------------------------------------")
 
+        if False:
+            self.__log("The data fetching is restricted to the range when swimming temperatures are available")
+            self.start_time = timeseries.index[0].to_pydatetime().replace(tzinfo=None)
+            self.end_time = timeseries.index[-1].to_pydatetime().replace(tzinfo=None)
+
         #########################################################
         # time series from frost
         if False:
