@@ -10,6 +10,7 @@ Test havvarsel-frost.met.no (badevann):
 
 import argparse
 import sys
+import time
 import json
 import datetime
 import requests
@@ -65,6 +66,7 @@ class HavvarselFrostImporter:
 
         try:
             r = requests.get(endpoint, params=payload_str)
+            print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
             self.__log("Trying " + r.url)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
@@ -95,15 +97,13 @@ class HavvarselFrostImporter:
         df = pd.DataFrame(rows)
         df['time'] =  pd.to_datetime(df['time'])
         df[param] = pd.to_numeric(df[param])
-        df.columns = ['time', station_id]
+        df.columns = ['time', "water_temp"]
         df.set_index('time')
-        df.rename(columns={station_id:"water_temp"}, inplace=True)
 
         # NOTE: some observations are 1min delayed. 
         # To ensure agreement with hourly observations from Frost
         # We floor the times to hours
-        df["time"] = df["time"].dt.floor('H')
-        df = df.set_index("time")
+        df = df.resample("H", on="time").mean()
 
         return(df_location, df)
        

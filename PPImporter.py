@@ -17,8 +17,8 @@ See the MET post-processed data on https://thredds.met.no/thredds/metno.html > p
 """
 
 import argparse
+import time
 import datetime
-from imghdr import tests
 from traceback import format_exc
 import netCDF4
 import numpy as np
@@ -111,6 +111,7 @@ class PPImporter:
 
         # Load multi-file object
         nc = netCDF4.Dataset(filenames[0])
+        print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
         print("Processing", filenames[0])
 
         # handle projection
@@ -166,6 +167,7 @@ class PPImporter:
 
     def data1file(self,filename,y,x,params,t1=0,t2=None):
         nc = netCDF4.Dataset(filename)
+        print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
         print("Processing ", filename)
         cftimes = netCDF4.num2date(nc.variables["time"][t1:t2], nc.variables["time"].units)
         datetimes = self.__cftime2datetime(cftimes)

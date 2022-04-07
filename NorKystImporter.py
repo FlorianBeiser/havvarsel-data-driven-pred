@@ -26,6 +26,7 @@ TODO:
 """
 
 import argparse
+import time
 import datetime
 from traceback import format_exc
 import netCDF4
@@ -107,6 +108,7 @@ class NorKystImporter:
         # Load first object
         # and use it to specify the coordinates
         nc = netCDF4.Dataset(clean_filenames[0])
+        print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
         print("Processing ", clean_filenames[0])
 
         # handle projection
@@ -163,6 +165,7 @@ class NorKystImporter:
         # LOOP OVER EACH FILE
         for i in range(1,len(clean_filenames)-1):
             nc = netCDF4.Dataset(clean_filenames[i])
+            print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
             print("Processing ", clean_filenames[i])
             cftimes = netCDF4.num2date(nc.variables["time"][:], times.units)
             datetimes = self.__cftime2datetime(cftimes)
@@ -173,6 +176,7 @@ class NorKystImporter:
 
         # LAST FILE
         nc = netCDF4.Dataset(clean_filenames[-1])
+        print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
         print("Processing ", clean_filenames[-1])
         times = nc.variables["time"]
         try:

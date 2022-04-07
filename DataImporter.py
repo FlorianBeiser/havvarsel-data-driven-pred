@@ -8,9 +8,9 @@ Constructing dataset and saving as csv
 
 The data sources include
 - havvarsel-frost (see HavvarselFrostImporter)
-- frost (see FrostImporter)
-- norkyst800 (see NorKyst)
-- post-processed weather forecasts ()
+[- frost (see FrostImporter)]
+- norkyst800 (see NorKystImporter)
+- post-processed weather forecasts (see PPImporter)
 
 Test for the construction of a data set:
 'python DataImporter.py -id 100 -S 2021-10-10T00:00 -E 2021-10-12T23:59'
@@ -76,10 +76,10 @@ class DataImporter:
 
         self.__log("-------------------------------------------")
 
-        if False:
+        if True:
             self.__log("The data fetching is restricted to the range when swimming temperatures are available")
-            self.start_time = timeseries.index[0].to_pydatetime().replace(tzinfo=None)
-            self.end_time = timeseries.index[-1].to_pydatetime().replace(tzinfo=None)
+            self.start_time = data.index[0].to_pydatetime().replace(tzinfo=None)
+            self.end_time = data.index[-1].to_pydatetime().replace(tzinfo=None)
 
         #########################################################
         # time series from frost
