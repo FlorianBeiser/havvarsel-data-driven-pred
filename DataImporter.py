@@ -154,7 +154,7 @@ class DataImporter:
         #########################################################
         # save dataset
         self.__log("Dataset is constructed and will be saved now...")
-        data.to_csv("dataset.csv")
+        data.to_csv("dataset_"+station_id+".csv")
         self.__log("Ready!")
 
     
