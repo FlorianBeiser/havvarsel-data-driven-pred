@@ -130,7 +130,7 @@ class DataImporter:
 
         #########################################################
         # time series from THREDDS post-processed forecast
-        pp_params = ['air_temperature_2m', 'wind_speed_10m',\
+        pp_params = ['air_temperature_2m', 'wind_speed_10m', 'wind_direction_10m',\
             'cloud_area_fraction', 'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
 
         self.__log("Fetching data from THREDDS")
