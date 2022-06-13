@@ -61,6 +61,12 @@ class NorKystImporter:
             self.start_time = start_time
             self.end_time = end_time
 
+            self.filenames = None
+
+            self.x1 = None
+            self.y1 = None
+
+
     @staticmethod
     def daterange(start_date, end_date):
         # +1 to include end_date 
@@ -102,43 +108,50 @@ class NorKystImporter:
         if end_time is None:
             end_time = self.end_time
 
-        # Filenames for fetching
-        filenames = self.norkyst_filenames()
+        if self.filenames is None:
+            # Filenames for fetching
+            self.filenames = self.norkyst_filenames()
 
         # Load first object
         # and use it to specify the coordinates
-        nc = netCDF4.Dataset(filenames[0])
+        nc = netCDF4.Dataset(self.filenames[0])
         print("- " + time.strftime("%H:%M:%S", time.gmtime()) + " -")
 
-        # handle projection
-        for var in ['polar_stereographic','projection_stere','grid_mapping']:
-            if var in nc.variables.keys():
-                try:
-                    proj1 = nc.variables[var].proj4
-                except:
-                    proj1 = nc.variables[var].proj4string
-        p1 = proj.Proj(str(proj1))
-        xp1,yp1 = p1(lon,lat)
-        for var in ['latitude','lat']:
-            if var in nc.variables.keys():
-                lat1 = nc.variables[var][:]
-        for var in ['longitude','lon']:
-            if var in nc.variables.keys():
-                lon1 = nc.variables[var][:]
-        xproj1,yproj1 = p1(lon1,lat1)
+        if self.x1 is None:
+            # handle projection
+            for var in ['polar_stereographic','projection_stere','grid_mapping']:
+                if var in nc.variables.keys():
+                    try:
+                        proj1 = nc.variables[var].proj4
+                    except:
+                        proj1 = nc.variables[var].proj4string
+            p1 = proj.Proj(str(proj1))
+            xp1,yp1 = p1(lon,lat)
+            for var in ['latitude','lat']:
+                if var in nc.variables.keys():
+                    lat1 = nc.variables[var][:]
+            for var in ['longitude','lon']:
+                if var in nc.variables.keys():
+                    lon1 = nc.variables[var][:]
+            xproj1,yproj1 = p1(lon1,lat1)
 
-        # find coordinate of gridpoint to analyze (only wet cells)
-        h = np.array(nc["h"])
-        land_value = h.min()
-        land_mask = np.where((h!=land_value),0,1)
-        distances = (xproj1-xp1)**2 + (yproj1-yp1)**2 + land_mask*1e12
-        y1, x1 = np.unravel_index(distances.argmin(), distances.shape)
+            # find coordinate of gridpoint to analyze (only wet cells)
+            h = np.array(nc["h"])
+            land_value = h.min()
+            land_mask = np.where((h!=land_value),0,1)
+            distances = (xproj1-xp1)**2 + (yproj1-yp1)**2 + land_mask*1e12
+            self.y1, self.x1 = np.unravel_index(distances.argmin(), distances.shape)
 
-        print('Coordinates model (x,y= '+str(x1)+','+str(y1)+'): '+str(lat1[y1,x1])+', '+str(lon1[y1,x1]))
+            print('Coordinates model (x,y= '+str(self.x1)+','+str(self.y1)+'): '+str(lat1[self.y1,self.x1])+', '+str(lon1[self.y1,self.x1]))
 
         # find correct depth index
         all_depths = nc.variables["depth"][:]
-        depth_index = np.where(all_depths == int(depth))[0][0]
+        if isinstance(depth, list):
+            depth_index = []
+            for d in depth:
+                depth_index.append(np.where(all_depths == int(d))[0][0])
+        else:
+            depth_index = np.where(all_depths == int(depth))[0][0]
 
         # find correct time indices for start and end of timeseries
         times = nc.variables["time"]
@@ -149,26 +162,26 @@ class NorKystImporter:
             t1 = 0
         
         # FIRST FILE
-        timeseries = self.data1file(filenames[0],y1,x1,param,depth,depth_index,t1=t1)
+        timeseries = self.data1file(self.filenames[0],self.y1,self.x1,param,depth,depth_index,t1=t1)
 
         # LOOP OVER EACH FILE
-        for i in range(1,len(filenames)-1):
+        for i in range(1,len(self.filenames)-1):
             try:
-                new_timeseries = self.data1file(filenames[i],y1,x1,param,depth,depth_index)
+                new_timeseries = self.data1file(self.filenames[i],self.y1,self.x1,param,depth,depth_index)
                 timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
             except:
                 pass
 
         # LAST FILE
         try:
-            nc = netCDF4.Dataset(filenames[-1])
+            nc = netCDF4.Dataset(self.filenames[-1])
             times = nc.variables["time"]
             try:
                 t2 = netCDF4.date2index(end_time, times, calendar=times.calendar, select="after")
             except:
                 t2 = len(times[:])
 
-            new_timeseries = self.data1file(filenames[-1],y1,x1,param,depth,depth_index,t2=t2)
+            new_timeseries = self.data1file(self.filenames[-1],self.y1,self.x1,param,depth,depth_index,t2=t2)
             timeseries = pd.concat([timeseries,new_timeseries], ignore_index=True)
         except:
             pass
@@ -192,7 +205,14 @@ class NorKystImporter:
         # FIRST DATA
         data = nc.variables[param][t1:t2,depth_index,y1,x1]
         # Dataframe for return
-        timeseries = pd.DataFrame({"referenceTime":datetimes, param+str(depth):data})
+        timeseries = pd.DataFrame(data)
+        timeseries["referenceTime"] = datetimes 
+        
+        if isinstance(depth, list): 
+            for d in range(len(depth)):
+                timeseries = timeseries.rename(columns={d:param+str(depth[d])})
+        else:
+            timeseries = timeseries.rename(columns={"0":str(depth)})
 
         return timeseries
 

@@ -20,6 +20,7 @@ Test for the construction of a data set:
 import argparse
 import sys
 import datetime
+from time import time
 from traceback import format_exc
 import pandas as pd
 
@@ -115,16 +116,21 @@ class DataImporter:
         #########################################################
         # time series from THREDDS norkyst
         self.__log("Fetching data from THREDDS")
+        depth=[0,3,5]
+
         norkystImporter = NorKystImporter.NorKystImporter(self.start_time, self.end_time)
         timeseries = norkystImporter.norkyst_data("temperature", 
-                        float(location["lon"][0]), float(location["lat"][0]), depth=0)
+                        float(location["lon"][0]), float(location["lat"][0]), depth=depth)
 
         timeseries = timeseries.rename(columns={"referenceTime":"time"})
-        timeseries = timeseries.rename(columns={"temperature0":"norkyst_water_temp"})
-        
+        for c in timeseries.columns:
+            if isinstance(c, str):
+                if c.startswith("temperature"):
+                    timeseries = timeseries.rename(columns={c:c.replace("temperature", "norkyst_water_temp")})
+
         data = data.reset_index()
         data = pd.merge(data.set_index("time"), timeseries.set_index("time"), how="left", on="time")
-        
+
         self.__log("-------------------------------------------")
 
 
