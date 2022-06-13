@@ -40,7 +40,7 @@ class PPImporter:
             if params is None:
                 params = ['air_temperature_2m', 'wind_speed_10m',\
                     'cloud_area_fraction', 'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time',
-                    'wind_direction_10m']
+                    'wind_direction_10m', 'precipitation_amount']
  
             data = self.pp_data(params, lon, lat, self.start_time, self.end_time)
 

@@ -116,7 +116,7 @@ class DataImporter:
         #########################################################
         # time series from THREDDS norkyst
         self.__log("Fetching data from THREDDS")
-        depth=[0,3,5]
+        depth=[0,3,10]
 
         norkystImporter = NorKystImporter.NorKystImporter(self.start_time, self.end_time)
         timeseries = norkystImporter.norkyst_data("temperature", 
@@ -136,7 +136,7 @@ class DataImporter:
 
         #########################################################
         # time series from THREDDS post-processed forecast
-        pp_params = ['air_temperature_2m', 'wind_speed_10m', 'wind_direction_10m',\
+        pp_params = ['air_temperature_2m', 'wind_speed_10m', 'wind_direction_10m','precipitation_amount',\
             'cloud_area_fraction', 'integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time']
 
         self.__log("Fetching data from THREDDS")
