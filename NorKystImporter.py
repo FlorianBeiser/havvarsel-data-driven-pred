@@ -251,6 +251,38 @@ class NorKystImporter:
         res = parser.parse_args(sys.argv[1:])
         return res.lon, res.lat, res.depth, res.param, res.start_time, res.end_time
 
+
+    @staticmethod
+    def simulated_depth(lat, lon):
+        """returning H for the grid cell that contains the station or is the closest wet cell"""
+        nc = netCDF4.Dataset('https://thredds.met.no/thredds/dodsC/fou-hi/norkyst800m-1h/NorKyst-800m_ZDEPTHS_his.an.2021100100.nc')
+        # handle projection
+        for var in ['polar_stereographic','projection_stere','grid_mapping']:
+            if var in nc.variables.keys():
+                try:
+                    proj1 = nc.variables[var].proj4
+                except:
+                    proj1 = nc.variables[var].proj4string
+        p1 = proj.Proj(str(proj1))
+        xp1,yp1 = p1(lon,lat)
+        for var in ['latitude','lat']:
+            if var in nc.variables.keys():
+                lat1 = nc.variables[var][:]
+        for var in ['longitude','lon']:
+            if var in nc.variables.keys():
+                lon1 = nc.variables[var][:]
+        xproj1,yproj1 = p1(lon1,lat1)
+
+        # find coordinate of gridpoint to analyze (only wet cells)
+        h = np.array(nc["h"])
+        land_value = h.min()
+        land_mask = np.where((h!=land_value),0,1)
+        distances = (xproj1-xp1)**2 + (yproj1-yp1)**2 + land_mask*1e12
+        y1, x1 = np.unravel_index(distances.argmin(), distances.shape)
+
+        return nc.variables["h"][y1,x1].data.item()
+
+
 if __name__ == "__main__":
 
     try:
